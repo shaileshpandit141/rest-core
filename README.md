@@ -1,6 +1,6 @@
 # rest_core
 
-![PyPI - Version](https://img.shields.io/pypi/v/rest-core) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/rest-core) ![License](https://img.shields.io/pypi/l/rest-core)
+![PyPI - Version](https://img.shields.io/pypi/v/rest-core) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/rest-core)
 
 **A lightweight Django package to enhance your Django REST Framework (DRF) APIs with consistent response formatting, smart exception handling, rate-limit introspection, and response time tracking.**
 
@@ -127,7 +127,7 @@ Contributions are welcome! Please open an issue or submit a pull request for any
 
 ## 🧾 License
 
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/shaileshpandit141/rest-core/blob/main/LICENSE) file for details.
 
 ## 👤 Author
 

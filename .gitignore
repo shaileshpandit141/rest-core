@@ -4,6 +4,7 @@ __pycache__/
 build/
 wheels/
 *.egg-info
+.pypirc
 
 # Virtual environments
 .venv

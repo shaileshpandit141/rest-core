@@ -77,13 +77,13 @@ class JSONBaseRenderer(JSONRenderer):
                 "errors": None,
                 "meta": {
                     "response_time": (
-                        response.headers.get("X-Response-Time", "N/A")
+                        response.headers.get("X-Response-Time", "none")
                         if hasattr(response, "headers")
-                        else "N/A"
+                        else "none"
                     ),
                     "request_id": str(uuid4()),
                     "timestamp": datetime.utcnow().isoformat(),
-                    "documentation_url": "N/A",
+                    "documentation_url": "none",
                     "rate_limits": throttle_details,
                 },
             }

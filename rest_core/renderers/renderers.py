@@ -23,15 +23,15 @@ class JSONBaseRenderer(JSONRenderer):
 
     Response Format:
         {
-            "status": str,          # "succeeded" or "failed"
-            "status_code": int,     # HTTP status code
-            "message": str,         # Response message or status text
-            "data": Any,           # Response payload for successful requests
-            "errors": Any,         # Error details for failed requests
+            "status": str,                  # "succeeded" or "failed"
+            "status_code": int,             # HTTP status code
+            "message": str,                 # Response message or status text
+            "data": Any,                    # Response payload for successful requests
+            "errors": Any,                  # Error details for failed requests
                 "response_time": str,       # Response processing time
                 "request_id": str,          # Unique request identifier
                 "timestamp": str,           # UTC timestamp in ISO format
-                "documentation_url": str,    # API documentation URL
+                "documentation_url": str,   # API documentation URL
                 "rate_limits": dict         # Rate limiting information
 
     Notes:
@@ -93,8 +93,8 @@ class JSONBaseRenderer(JSONRenderer):
                 message = data["message"]
                 if message is not None:
                     payload.update({"message": message})
-            if "payload" in data:
-                payload.update({"data": data["payload"]})
+            if "data" in data:
+                payload.update({"data": data["data"]})
             else:
                 payload.update({"data": data})
 

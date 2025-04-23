@@ -33,6 +33,7 @@ class Response(DrfResponse):
         {
             "message": str,
             "payload": Union[dict, list]
+        }
     """
 
     def __init__(
@@ -46,7 +47,7 @@ class Response(DrfResponse):
     ) -> None:
         formatted_data: dict[str, Any] = {
             "message": message,
-            "payload": data,
+            "data": data,
         }
 
         super().__init__(

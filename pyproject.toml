@@ -1,0 +1,11 @@
+[project]
+name = "rest-core"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "django>=5.2",
+    "djangorestframework>=3.16.0",
+    "pytz>=2025.2",
+]

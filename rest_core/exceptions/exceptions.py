@@ -9,7 +9,39 @@ from rest_framework.throttling import AnonRateThrottle
 
 
 def base_exception_handler(exc, context) -> Any | Response | None:
-    """A custom exception handler that returns the exception details in a custom format."""
+    """A custom exception handler that returns the exception details in a custom format and applies throttling.
+
+    This handler extends the default DRF exception handler by adding request throttling capabilities.
+    It checks the request against defined throttle classes and enforces rate limiting even when
+    exceptions occur.
+
+    Args:
+        exc: The exception that was raised
+        context (dict): The context dict containing request and view information
+
+    Returns:
+        Response|Any|None: Either:
+            - A Response object with error details and retry information if throttled
+            - The original exception handler response
+            - None if no response is generated
+
+    The handler will:
+    1. Process the exception through DRF's default handler
+    2. Apply throttling based on whether the user is authenticated
+    3. Track request history in cache
+    4. Return 429 TOO MANY REQUESTS if rate limit exceeded
+    5. Update throttling cache with current request
+
+    Rate limiting uses either:
+    - View-defined throttle classes if available
+    - AnonRateThrottle as fallback for authenticated users
+    - AnonRateThrottle for anonymous users
+
+    The response includes:
+    - Error message
+    - Request retry information
+    - HTTP 429 status code when throttled
+    """
     response = views.exception_handler(exc, context)
     request = context.get("request", None)
 

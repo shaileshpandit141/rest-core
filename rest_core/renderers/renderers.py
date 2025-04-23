@@ -8,6 +8,39 @@ from ..throttle_inspector import ThrottleInspector
 
 
 class JSONBaseRenderer(JSONRenderer):
+    """A custom JSON renderer that extends Django REST Framework's JSONRenderer.
+
+    This renderer provides a standardized JSON response format with additional metadata
+    and error handling capabilities. It wraps the response data in a consistent structure
+    that includes status, status code, message, data, errors, and metadata.
+
+    Attributes:
+        None
+
+    Methods:
+        render(data, accepted_media_type=None, renderer_context=None) -> bytes:
+            Renders the response data into a standardized JSON format.
+
+    Response Format:
+        {
+            "status": str,          # "succeeded" or "failed"
+            "status_code": int,     # HTTP status code
+            "message": str,         # Response message or status text
+            "data": Any,           # Response payload for successful requests
+            "errors": Any,         # Error details for failed requests
+                "response_time": str,       # Response processing time
+                "request_id": str,          # Unique request identifier
+                "timestamp": str,           # UTC timestamp in ISO format
+                "documentation_url": str,    # API documentation URL
+                "rate_limits": dict         # Rate limiting information
+
+    Notes:
+        - For successful responses (2xx), data contains the response payload
+        - For error responses, errors contains the error details and data is None
+        - 204 No Content responses return None
+        - Throttling information is automatically included in meta.rate_limits
+        - Supports DRF's flexible response format with 'message' and 'payload' keys
+    """
     def render(self, data, accepted_media_type=None, renderer_context=None) -> bytes:
         # If renderer_context is None, return the data as is
         if renderer_context is None:

@@ -5,14 +5,15 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "rest-core"
 version = "0.1.0"
-description = "Reusable Django app for ..."
+description = "A lightweight Django package to enhance your Django REST Framework (DRF) APIs with consistent response formatting, smart exception handling, rate-limit introspection, and response time tracking."
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "shailesh pandit", email = "shaileshpandit141@gmail.com" }]
 requires-python = ">=3.8"
 dependencies = [
     "django>=5.2",
-    "djangorestframework>=3.16.0"
+    "djangorestframework>=3.16.0",
+    "pytz>=2025.2",
 ]
 
 [project.urls]

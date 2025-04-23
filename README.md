@@ -1,365 +1,137 @@
-rest_core/
-  - exceptions/
-  - middlewares/
-  - renderers/
-  - response/
-  - throttle_inspector/
-  - __init__.py
+# rest_core
 
-<!-- exceptions/exceptions.py -->
-from datetime import datetime
-from typing import Any
+![PyPI - Version](https://img.shields.io/pypi/v/rest-core) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/rest-core) ![License](https://img.shields.io/pypi/l/rest-core)
 
-import pytz
-from django.core.cache import cache
-from rest_framework import status, views
-from rest_framework.response import Response
-from rest_framework.throttling import AnonRateThrottle
+**A lightweight Django package to enhance your Django REST Framework (DRF) APIs with consistent response formatting, smart exception handling, rate-limit introspection, and response time tracking.**
 
+## 🔧 Features
 
-def base_exception_handler(exc, context) -> Any | Response | None:
-    """A custom exception handler that returns the exception details in a custom format."""
-    response = views.exception_handler(exc, context)
-    request = context.get("request", None)
+- ✅ **Consistent JSON API Responses**  
+- 🚫 **Custom Exception Handling** with built-in throttle checks  
+- 🔍 **Rate Limit Inspector** to show per-view throttle info  
+- ⚙️ **Custom JSON Renderer** for standardized output  
+- ⏱️ **Response Time Middleware** with `X-Response-Time` header  
+- 💬 **Developer-friendly Response Class**
 
-    # Apply throttling if any exception is raised
-    if request is not None:
-        # Get the view (if available)
-        view = context.get("view", None)
+## 📦 Installation
 
-        is_authenticated = request.user.is_authenticated
-        if is_authenticated:
-            # Use view-defined throttle classes or fallback to AnonRateThrottle
-            throttle_classes = getattr(view, "throttle_classes", None) or [
-                AnonRateThrottle
-            ]
-        else:
-            throttle_classes = [AnonRateThrottle]
-            setattr(view, "throttle_classes", throttle_classes)
+Install from PyPI:
 
-        # Iterate over the list of throttles class
-        for throttle_class in throttle_classes:
-            throttle = throttle_class()  # Instantiate the throttle class
-            cache_key = throttle.get_cache_key(request, view)
+```bash
+pip install rest-core
+```
 
-            if cache_key:
-                history = cache.get(cache_key, [])
-                now = datetime.now(pytz.UTC).timestamp()
+## 🚀 Quick Start
 
-                # Remove expired requests from history
-                history = [
-                    timestamp
-                    for timestamp in history
-                    if now - timestamp < throttle.duration
-                ]
+### 1. Add to `settings.py`
 
-                # Check if throttle limit is exceeded or not
-                if isinstance(throttle.num_requests, int):
-                    if len(history) >= throttle.num_requests:
-                        retry_after = throttle.duration
-                        if history:
-                            retry_after = int(throttle.duration - (now - history[0]))
+```python
+REST_FRAMEWORK = {
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_core.renderers.JSONBaseRenderer",
+    ],
+    "EXCEPTION_HANDLER": "rest_core.exceptions.base_exception_handler",
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "10/minute",
+        "user": "100/minute",
+    },
+}
+```
 
-                        return Response(
-                            {
-                                "message": "You have exceeded the rate limit. Please wait before making more requests.",
-                                "data": {
-                                    "detail": "You have exceeded the rate limit. Please wait before making more requests.",
-                                    "retry_after": retry_after,
-                                },
-                            },
-                            status=status.HTTP_429_TOO_MANY_REQUESTS,
-                        )
+### 2. Update Middleware
 
-                # Otherwise, add the current request to history and update cache
-                history.append(now)
-                cache.set(cache_key, history, throttle.duration)
+```python
+MIDDLEWARE = [
+    ...
+    "rest_core.middlewares.ResponseTimeMiddleware",
+]
+```
 
-    # Return un updaed response instance
-    return response
+## ✅ Usage
 
-<!-- middlewares/middlewares.py -->
-import logging
-import time
-from typing import Any
+### Example View Using Custom Response
 
-logger = logging.getLogger(__name__)
+```python
+from rest_core.response.response import Response
+from rest_framework.views import APIView
 
+class MyAPIView(APIView):
+    def get(self, request):
+        data = {"foo": "bar"}
+        return Response(message="Success", data=data, status=200)
+```
 
-class ResponseTimeMiddleware:
-    def __init__(self, get_response) -> None:
-        self.get_response = get_response
+## 📄 Example API Response Format
 
-    def __call__(self, request) -> Any:
-        start_time = time.perf_counter()
-        response = self.get_response(request)
-        end_time = time.perf_counter()
-
-        response_time = f"{round(end_time - start_time, 6)} seconds"
-        response["X-Response-Time"] = response_time
-
-        logger.info(f"Request processed in {response_time}")
-        
-        return response
-
-<!-- renderers/renderers.py -->
-from datetime import datetime
-from typing import Any
-from uuid import uuid4
-
-from rest_framework.renderers import JSONRenderer
-
-from ..throttle_inspector import ThrottleInspector
-
-
-class JSONBaseRenderer(JSONRenderer):
-    def render(self, data, accepted_media_type=None, renderer_context=None) -> bytes:
-        # If renderer_context is None, return the data as is
-        if renderer_context is None:
-            return super().render(data, accepted_media_type, renderer_context)
-
-        # Get the response object from the renderer context
-        response = renderer_context.get("response", None)
-
-        # If the response object is not None, get the status code and status text
-        if response is not None:
-            status_code = response.status_code
-            throttle_details: dict[str, Any] = {}
-
-            # Access the view instance from the renderer context
-            view = renderer_context.get("view", None)
-
-            if view is not None:
-                # Initialize ThrottleInspector class
-                throttle_inspector = ThrottleInspector(view)
-
-                # Inspect the throttles details
-                throttle_details = throttle_inspector.get_details()
-
-                # Attach throttle details in headers
-                throttle_inspector.attach_headers(response, throttle_details)
-
-            # Praper Initial payload data for response
-            payload: dict[str, Any] = {
-                "status": "succeeded",
-                "status_code": status_code,
-                "message": response.status_text,
-                "data": None,
-                "errors": None,
-                "meta": {
-                    "response_time": (
-                        response.headers.get("X-Response-Time", "N/A")
-                        if hasattr(response, "headers")
-                        else "N/A"
-                    ),
-                    "request_id": str(uuid4()),
-                    "timestamp": datetime.utcnow().isoformat(),
-                    "documentation_url": "N/A",
-                    "rate_limits": throttle_details,
-                },
-            }
-
-            # Handle Drf uper flexible response data
-            if "message" in data:
-                message = data["message"]
-                if message is not None:
-                    payload.update({"message": message})
-            if "payload" in data:
-                payload.update({"data": data["payload"]})
-            else:
-                payload.update({"data": data})
-
-            # Detect Drf errors
-            if not str(status_code).startswith("2"):
-                payload.update(
-                    {"status": "failed", "errors": payload["data"], "data": None}
-                )
-                return super().render(
-                    payload,
-                    accepted_media_type,
-                    renderer_context,
-                )
-
-            # Handle success response
-            if status_code == 204:
-                return super().render(
-                    None,
-                    accepted_media_type,
-                    renderer_context,
-                )
-            else:
-                return super().render(
-                    payload,
-                    accepted_media_type,
-                    renderer_context,
-                )
-
-        # If the response object is None, return the data as is
-        return super().render(data, accepted_media_type, renderer_context)
-
-<!-- response/response.py -->
-from typing import Any, Optional, Union
-
-from rest_framework.response import Response as DrfResponse
-
-
-class Response(DrfResponse):
-    def __init__(
-        self,
-        message: Optional[str] = None,
-        data: Optional[Union[dict[str, Any], list[Any]]] = None,
-        status: Optional[int] = None,
-        headers: Optional[dict[str, str]] = None,
-        exception: bool = False,
-        content_type: Optional[str] = None,
-    ) -> None:
-        formatted_data: dict[str, Any] = {
-            "message": message,
-            "payload": data,
+```json
+{
+  "status": "succeeded",
+  "status_code": 200,
+  "message": "Success",
+  "data": {
+    "foo": "bar"
+  },
+  "errors": null,
+  "meta": {
+    "response_time": "0.001892 seconds",
+    "request_id": "uuid",
+    "timestamp": "2025-04-23T09:00:00.000Z",
+    "documentation_url": "N/A",
+    "rate_limits": {
+      "throttled_by": null,
+      "throttles": {
+        "anon": {
+          "limit": 10,
+          "remaining": 8,
+          "reset_time": "2025-04-23T09:01:00Z",
+          "retry_after": "60 seconds"
         }
+      }
+    }
+  }
+}
+```
 
-        super().__init__(
-            data=formatted_data,
-            status=status,
-            headers=headers,
-            exception=exception,
-            content_type=content_type,
-        )
+## ⚠️ Exception Throttling
 
-<!-- throttle_inspector/throttle_inspector.py -->
-import logging
-import re
-from datetime import datetime, timedelta
-from typing import Any, Dict, Optional, Tuple, Type
+If throttled, the exception handler:
 
-import pytz
-from django.conf import settings
-from rest_framework.throttling import BaseThrottle
+- Detects if the request exceeded limits  
+- Returns a DRF-standard `429 Too Many Requests` response  
+- Adds `Retry-After` and reset time in the response metadata
 
-# Configure logging
-logger = logging.getLogger(__name__)
+## 🧪 Throttle Inspector
 
+The `ThrottleInspector` class checks throttle classes for the request and includes:
 
-class ThrottleInspector:
-    """
-    A class that inspects and retrieves details for DRF throttling,
-    following Django REST Framework's default behavior.
-    """
+- Rate limits  
+- Remaining request count  
+- Time until reset  
+- Retry suggestions  
 
-    def __init__(self, view_instance: Any) -> None:
-        """
-        Initializes the ThrottleInspector with the view instance.
+## ⏱️ Response Time
 
-        Args:
-            view_instance (Any): The Django APIView instance.
-        """
-        self.view_instance = view_instance
-        self.request = getattr(view_instance, "request", None)
-        self.throttle_classes = getattr(view_instance, "throttle_classes", [])
+A custom middleware appends the following header to all responses:
 
-        if not self.throttle_classes:
-            logger.info(
-                f"No throttles configured for {type(view_instance).__name__}. Returning empty response."
-            )
-        if not self.request:
-            logger.warning(
-                f"Request object is missing in {type(view_instance).__name__}."
-            )
+```http
+X-Response-Time: 0.001621 seconds
+```
 
-    @staticmethod
-    def to_snake_case(name: str) -> str:
-        """Converts UpperCamelCase to snake_case and removes 'RateThrottle' suffix."""
-        return re.sub(r"(?<!^)(?=[A-Z])", "_", name.replace("RateThrottle", "")).lower()
+## 🙌 Contributing
 
-    @staticmethod
-    def parse_rate(rate: str) -> Optional[Tuple[int, int]]:
-        """Parses a rate string (e.g., '100/day') into (limit, duration_in_seconds)."""
-        if not rate:
-            return None
-        match = re.match(r"(\d+)/(second|minute|hour|day)", rate)
-        if not match:
-            return None
+Contributions are welcome! Please open an issue or submit a pull request for any improvements or new features.
 
-        num_requests, period = match.groups()
-        duration_map = {"second": 1, "minute": 60, "hour": 3600, "day": 86400}
-        return int(num_requests), duration_map[period]
+## 🧾 License
 
-    def get_throttle_rate(
-        self, throttle_class: Type[BaseThrottle]
-    ) -> Optional[Tuple[int, int]]:
-        """Retrieves and parses the throttle rate from Django settings."""
-        throttle_name = self.to_snake_case(throttle_class.__name__)
-        rate = settings.REST_FRAMEWORK.get("DEFAULT_THROTTLE_RATES", {}).get(
-            throttle_name
-        )
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
 
-        if not rate:
-            logger.warning(f"No rate limit found for {throttle_name}. Skipping.")
+## 👤 Author
 
-        return self.parse_rate(rate)
+If you have any questions or need assistance with this project, feel free to reach out:
 
-    def get_throttle_usage(
-        self, throttle: BaseThrottle, limit: int, duration: int
-    ) -> Dict[str, Any]:
-        """Gets current request usage for a given throttle instance."""
-        cache_key = throttle.get_cache_key(self.request, self.view_instance)  # type: ignore
-        history = throttle.cache.get(cache_key, []) if cache_key else []  # type: ignore
-
-        remaining = max(0, limit - len(history))
-        first_request_time = (
-            datetime.fromtimestamp(history[0], tz=pytz.UTC)
-            if history
-            else datetime.now(pytz.UTC)
-        )
-        reset_time = first_request_time + timedelta(seconds=duration)
-        retry_after = max(0, int((reset_time - datetime.now(pytz.UTC)).total_seconds()))
-
-        return {
-            "limit": limit,
-            "remaining": remaining,
-            "reset_time": reset_time.isoformat(),
-            "retry_after": f"{retry_after} seconds",
-        }
-
-    def get_details(self) -> Dict[str, Any]:
-        """
-        Retrieves throttle details for all specified throttle classes,
-        following Django's default prioritization.
-        If no throttles are configured, returns an empty dictionary `{}`.
-        """
-        if not self.throttle_classes:
-            return {}  # Return empty dictionary if no throttles are set
-
-        details: dict[str, Any] = {"throttled_by": None, "throttles": {}}
-
-        for throttle_class in self.throttle_classes:
-            throttle = throttle_class()
-            parsed_rate = self.get_throttle_rate(throttle_class)
-
-            if not parsed_rate:
-                continue  # Skip if rate is not configured
-
-            limit, duration = parsed_rate
-            throttle_name = self.to_snake_case(throttle_class.__name__)
-            throttle_usage = self.get_throttle_usage(throttle, limit, duration)
-
-            details["throttles"][throttle_name] = throttle_usage
-
-            if throttle_usage["remaining"] == 0 and not details["throttled_by"]:
-                details["throttled_by"] = throttle_name
-                logger.info(f"Request throttled by {throttle_name}")
-
-        return details
-
-    def attach_headers(self, response, throttle_details: Dict[str, Any] | None) -> None:
-        """Attaches throttle details to the response headers."""
-        if throttle_details is None:
-            return None
-
-        for throttle_type, data in throttle_details.get("throttles", {}).items():
-            response[f"X-Throttle-{throttle_type}-Limit"] = str(data["limit"])
-            response[f"X-Throttle-{throttle_type}-Remaining"] = str(data["remaining"])
-            response[f"X-Throttle-{throttle_type}-Reset"] = data["reset_time"]
-            response[f"X-Throttle-{throttle_type}-Retry-After"] = data["retry_after"]
-
-        logger.info("Throttle headers attached to response.")
+**Shailesh Pandit**  
+📧 `shaileshpandit141@gmail.com`

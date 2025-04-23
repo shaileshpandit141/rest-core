@@ -12,7 +12,7 @@ class Response(DrfResponse):
 
     Args:
         message (Optional[str]): A message to include in the response. Defaults to None.
-        data (Optional[Union[dict[str, Any], list[Any]]]): The payload data to be included 
+        data (Optional[Union[dict[str, Any], list[Any]]]): The payload data to be included
             in the response. Can be a dictionary or list. Defaults to None.
         status (Optional[int]): The HTTP status code for the response. Defaults to None.
         headers (Optional[dict[str, str]]): Additional headers to include in the response.
@@ -34,6 +34,7 @@ class Response(DrfResponse):
             "message": str,
             "payload": Union[dict, list]
     """
+
     def __init__(
         self,
         message: Optional[str] = None,

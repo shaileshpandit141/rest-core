@@ -23,6 +23,7 @@ class ResponseTimeMiddleware:
         The response time is measured in seconds and rounded to 6 decimal places.
         The timing includes the entire request-response cycle.
     """
+
     def __init__(self, get_response) -> None:
         self.get_response = get_response
 
@@ -35,5 +36,5 @@ class ResponseTimeMiddleware:
         response["X-Response-Time"] = response_time
 
         logger.info(f"Request processed in {response_time}")
-        
+
         return response

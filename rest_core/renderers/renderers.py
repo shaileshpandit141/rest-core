@@ -41,6 +41,7 @@ class JSONBaseRenderer(JSONRenderer):
         - Throttling information is automatically included in meta.rate_limits
         - Supports DRF's flexible response format with 'message' and 'payload' keys
     """
+
     def render(self, data, accepted_media_type=None, renderer_context=None) -> bytes:
         # If renderer_context is None, return the data as is
         if renderer_context is None:

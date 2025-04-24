@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rest-core"
-version = "0.1.1"
-description = "A lightweight Django package to enhance your Django REST Framework (DRF) APIs with consistent response formatting, smart exception handling, rate-limit introspection, and response time tracking."
+version = "0.1.2"
+description = "A lightweight Django package to enhance your Django REST Framework (DRF) APIs with consistent response formatting, smart exception handling, rate-limit introspection, response time tracking, and pagination utilities."
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "shailesh pandit", email = "shaileshpandit141@gmail.com" }]

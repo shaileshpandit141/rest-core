@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from blog.models import BlogPost
 from blog.serializers import BlogPostSerializer
 from rest_core.response import Response
+from rest_core.pagination import get_paginated_data
 
 User = get_user_model()
 
@@ -19,10 +20,11 @@ class BlogPostListAPIView(APIView):
 
     def get(self, request) -> Response:
         instance = BlogPost.objects.all()
-        serializer = BlogPostSerializer(instance=instance, many=True)
+
+        data = get_paginated_data(request, instance, BlogPostSerializer)
         return Response(
             message="Blog post retrive successful",
-            data=serializer.data,
+            data=data,
             status=status.HTTP_200_OK,
         )
 

@@ -140,4 +140,6 @@ REST_FRAMEWORK = {
         "anon": "10/minute",
         "user": "100/minute",
     },
+    "DEFAULT_PAGINATION_CLASS": "rest_core.pagination.PageNumberPagination",
+    "PAGE_SIZE": 2,
 }

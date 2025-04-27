@@ -30,6 +30,7 @@ classifiers = [
 dependencies = [
     "django>=5.2",
     "djangorestframework>=3.16.0",
+    "pydantic>=2.11.3",
     "pytz>=2025.2",
 ]
 

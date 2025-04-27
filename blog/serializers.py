@@ -1,9 +1,9 @@
-from rest_framework import serializers
+from rest_core.serializers import ModelSerializer
 
 from .models import BlogPost
 
 
-class BlogPostSerializer(serializers.ModelSerializer):
+class BlogPostSerializer(ModelSerializer):
     """Serializer class for BlogPost"""
 
     class Meta:

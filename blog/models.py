@@ -29,6 +29,7 @@ class BlogPost(models.Model):
         null=False,
         db_index=True,
         error_messages={
+            "required": "Please enter a blog post title.",
             "invalid": "Please enter a valid title.",
             "null": "Title field cannot be null.",
             "blank": "Title field cannot be empty.",

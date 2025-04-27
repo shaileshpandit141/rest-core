@@ -2,17 +2,18 @@
 
 ![PyPI - Version](https://img.shields.io/pypi/v/rest-core) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/rest-core)
 
-**A lightweight Django package to enhance your Django REST Framework (DRF) APIs with consistent response formatting, smart exception handling, rate-limit introspection, response time tracking, and pagination utilities.**
+**A lightweight Django package to enhance your Django REST Framework (DRF) APIs with consistent response formatting, smart exception handling, rate-limit introspection, response time tracking, pagination utilities, and enhanced serializers.**
 
 ## 🔧 Features
 
 - ✅ **Consistent JSON API Responses**
 - 🚫 **Custom Exception Handling** with built-in throttle checks
 - 🔍 **Rate Limit Inspector** to show per-view throttle info
-- ⚙️ **Custom JSON Renderer** for standardized output
+- ⚙️ **Custom JSON Renderer** for standardized output 
 - ⏱️ **Response Time Middleware** with `X-Response-Time` header
 - 💬 **Developer-friendly Response Class**
 - 📄 **Smart Pagination** with detailed pagination metadata
+- 📑 **Enhanced Serializers** with extra fields, bulk creation, error syncing, and file URL handling
 
 ## 📦 Installation
 
@@ -62,12 +63,12 @@ MIDDLEWARE = [
 from rest_core.response.response import Response
 from rest_framework.views import APIView
 from rest_core.pagination import get_paginated_data
-from rest_framework import serializers
+from rest_core.serializers import ModelSerializer, FileUrlMixin
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(FileUrlMixin, ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email']
+        fields = ['id', 'username', 'email', 'avatar']
 
 class ListAPIView(APIView):
     def get(self, request) -> Response:
@@ -123,12 +124,12 @@ class ListAPIView(APIView):
 from rest_core.response.response import Response
 from rest_framework.views import APIView
 from rest_core.pagination import get_paginated_data
-from rest_framework import serializers
+from rest_core.serializers import ModelSerializer, FileUrlMixin
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(FileUrlMixin, ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email']
+        fields = ['id', 'username', 'email', 'avatar']
 
 class ListAPIView(APIView):
     def get(self, request) -> Response:

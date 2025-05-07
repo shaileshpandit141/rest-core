@@ -6,7 +6,7 @@ from django.db.models import ForeignKey
 
 
 class Command(BaseCommand):
-    help = "Create or update model records from a JSON file, supporting FK lookups."
+    help = "Create or update model records from a JSON file, supporting FK lookups and safe error handling."
 
     def add_arguments(self, parser):
         parser.add_argument('--model', required=True, type=str, help="Model in 'app_label.ModelName' format")
@@ -32,7 +32,7 @@ class Command(BaseCommand):
             if not isinstance(records, list):
                 raise CommandError("JSON must be a list of objects.")
         except IsADirectoryError:
-            raise CommandError(f"Except File path not Directory: {json_file_path}")
+            raise CommandError(f"Expected file path, got directory: {json_file_path}")
         except FileNotFoundError:
             raise CommandError(f"File not found: {json_file_path}")
         except json.JSONDecodeError as error:
@@ -45,44 +45,55 @@ class Command(BaseCommand):
             if isinstance(field, ForeignKey)
         }
 
-        inserted_count = updated_count = skipped_count = 0
+        inserted_count = updated_count = skipped_count = error_count = 0
 
+        print()
         for idx, record in enumerate(records, start=1):
             record = record.copy()
+            skip_record = False
 
             # Handle ForeignKeys dynamically
             for field_name, related_model in fk_fields.items():
                 if field_name in record:
                     fk_value = record[field_name]
+                    resolved = False
 
-                    # Try common unique field names
                     for lookup_field in ["username", "email", "slug", "name", "pk", "id"]:
                         try:
-                            related_instance = related_model.objects.get(**{lookup_field: fk_value})
-                            record[field_name] = related_instance
+                            instance = related_model.objects.get(**{lookup_field: fk_value})
+                            record[field_name] = instance
+                            resolved = True
                             break
                         except related_model.DoesNotExist:
                             continue
-                    else:
+                        except Exception:
+                            continue
+
+                    if not resolved:
                         self.stderr.write(self.style.ERROR(
-                            f"Record {idx}: ForeignKey lookup failed for '{field_name}'='{fk_value}'"
+                            f" Skipped record {idx} (raise error):\n   ForeignKey '{field_name}' with value '{fk_value}' not found."
                         ))
-                        continue
+                        skip_record = True
+                        break
+
+            if skip_record:
+                error_count += 1
+                continue
 
             # Filter valid fields
             valid_data = {k: v for k, v in record.items() if k in model_fields}
 
-            # Find unique fields
-            unique_fields = [
-                f.name for f in model._meta.fields if f.unique and f.name in valid_data
-            ]
+            # Find unique fields for duplicate check
+            unique_fields = [f.name for f in model._meta.fields if f.unique and f.name in valid_data]
             if not unique_fields:
                 self.stderr.write(self.style.WARNING(
-                    f"Record {idx} skipped: No unique field found to check for duplicates."
+                    f" Skipped record {idx} (no unique field):\n   No unique field to check for duplicates."
                 ))
+                skipped_count += 1
                 continue
 
             filter_kwargs = {f: valid_data[f] for f in unique_fields}
+
             try:
                 existing = model.objects.filter(**filter_kwargs).first()
                 if existing:
@@ -92,27 +103,31 @@ class Command(BaseCommand):
                         existing.save()
                         updated_count += 1
                         self.stdout.write(self.style.SUCCESS(
-                            f"Updated record {idx}: {filter_kwargs}"
+                            f" Updated record {idx}"
                         ))
                     else:
                         skipped_count += 1
                         self.stdout.write(self.style.NOTICE(
-                            f"Skipped record {idx} (exists): {filter_kwargs}"
+                            f" Skipped record {idx} (already exists)"
                         ))
                 else:
-                    instance = model(**valid_data)
-                    instance.save()
+                    model.objects.create(**valid_data)
                     inserted_count += 1
                     self.stdout.write(self.style.SUCCESS(
                         f"Inserted record {idx}"
                     ))
-
-            except IntegrityError as e:
+            except IntegrityError:
+                error_count += 1
                 self.stderr.write(self.style.ERROR(
-                    f"Record {idx} failed to save: {e}"
+                    f" Skipped record {idx} (failed to save):\n   raise IntegrityError"
+                ))
+            except Exception as e:
+                error_count += 1
+                self.stderr.write(self.style.ERROR(
+                    f" Skipped record {idx} (failed to save)"
                 ))
 
         # Final summary
         self.stdout.write(self.style.SUCCESS(
-            f"\nInserted: {inserted_count} \n Updated: {updated_count} \n Skipped: {skipped_count}\n"
+            f"\nInserted: {inserted_count}\n Updated: {updated_count}\n Skipped: {skipped_count}\n  Errors: {error_count}\n"
         ))

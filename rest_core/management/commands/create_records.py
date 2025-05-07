@@ -121,7 +121,7 @@ class Command(BaseCommand):
                 self.stderr.write(self.style.ERROR(
                     f" Skipped record {idx} (failed to save):\n   raise IntegrityError"
                 ))
-            except Exception as e:
+            except Exception:
                 error_count += 1
                 self.stderr.write(self.style.ERROR(
                     f" Skipped record {idx} (failed to save)"

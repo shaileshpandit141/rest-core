@@ -2,7 +2,7 @@
 
 ![PyPI - Version](https://img.shields.io/pypi/v/rest-core) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/rest-core)
 
-**A lightweight Django package to enhance your Django REST Framework (DRF) APIs with consistent response formatting, smart exception handling, rate-limit introspection, response time tracking, pagination utilities, EmailService, and enhanced serializers.**
+**A lightweight Django package to enhance your Django REST Framework (DRF) APIs with consistent response formatting, smart exception handling, rate-limit introspection, response time tracking, pagination utilities, EmailService, mock_records, and enhanced serializers.**
 
 ## 🔧 Features
 
@@ -15,6 +15,13 @@
 - 📄 **Smart Pagination** with detailed pagination metadata
 - 📑 **Enhanced Serializers** with extra fields, bulk creation, error syncing, and file URL handling
 - 📧 **EmailService** A Robust Django Email Sending Utility
+- ⚙️ **mock_records** is a custom Django management command that allows you to insert or update mock data into any Django model using a JSON file.
+    - Supports any model via `app_label.ModelName`
+    - Reads data from a JSON file
+    -  Handles ForeignKey relationships dynamically
+    - Automatically skips, inserts, or updates existing records
+    - Optionally forces updates on existing records with `--force`
+    - Clean and detailed CLI output for each operation
 
 ## 📦 Installation
 
@@ -215,14 +222,14 @@ email_service = EmailService(
         text_template="emails/welcome.txt",
         html_template="emails/welcome.html"
     )
-    
+
     # With Fallback (default)
     result = email_service.send()  # fallback=True by default
-    
+
     print("Primary sent to:", result["is_success"])
     print("Primary sent to:", result["successful"])
     print("Fallback sent to:", result["fallback"])
-    
+
     # Without Fallback
     result = email_service.send(fallback=False)
 )
@@ -241,6 +248,42 @@ Welcome to {{ app_name }}!
 <p>Welcome to <strong>{{ app_name }}</strong>!</p>
 ```
 
+## 🧪 mock_records feature Usage
+```bash
+python manage.py mock_records --model <app_label.ModelName> --records <path/to/records.json> [--force]
+```
+
+## 📄 Example of mock_records
+JSON File: books.json
+```json
+[
+  {
+    "title": "Django for Pros",
+    "isbn": "1234567890123",
+    "author": 1
+  },
+  {
+    "title": "Advanced Python",
+    "isbn": "9876543210000",
+    "author": 2
+  }
+]
+```
+
+## Then run:
+```bash
+python manage.py mock_records --model library.Book --records records/books.json
+```
+## Logs
+```bash
+Inserted record 1
+Inserted record 2
+
+Inserted: 2
+ Updated: 0
+ Skipped: 0
+  Errors: 0
+```
 
 ## ⚠️ Exception Throttling
 

@@ -2,18 +2,19 @@
 
 ![PyPI - Version](https://img.shields.io/pypi/v/rest-core) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/rest-core)
 
-**A lightweight Django package to enhance your Django REST Framework (DRF) APIs with consistent response formatting, smart exception handling, rate-limit introspection, response time tracking, pagination utilities, and enhanced serializers.**
+**A lightweight Django package to enhance your Django REST Framework (DRF) APIs with consistent response formatting, smart exception handling, rate-limit introspection, response time tracking, pagination utilities, EmailService, and enhanced serializers.**
 
 ## 🔧 Features
 
 - ✅ **Consistent JSON API Responses**
 - 🚫 **Custom Exception Handling** with built-in throttle checks
 - 🔍 **Rate Limit Inspector** to show per-view throttle info
-- ⚙️ **Custom JSON Renderer** for standardized output 
+- ⚙️ **Custom JSON Renderer** for standardized output
 - ⏱️ **Response Time Middleware** with `X-Response-Time` header
 - 💬 **Developer-friendly Response Class**
 - 📄 **Smart Pagination** with detailed pagination metadata
 - 📑 **Enhanced Serializers** with extra fields, bulk creation, error syncing, and file URL handling
+- 📧 **EmailService** A Robust Django Email Sending Utility
 
 ## 📦 Installation
 
@@ -192,6 +193,54 @@ class ListAPIView(APIView):
   }
 }
 ```
+
+## 📧 EmailService Usages
+```python
+from rest_code.email_service import EmailService, Emails, Templates
+
+email_service = EmailService(
+    subject="Welcome to rest_core!",
+    emails=Emails(
+        from_email="your@email.com",
+        to_emails=[
+            "recipient1@example.com",
+            "recipient2@example.com"
+        ]
+    ),
+    context={
+        "user": "John Doe",
+        "service": "rest core app"
+    },
+    templates=Templates(
+        text_template="emails/welcome.txt",
+        html_template="emails/welcome.html"
+    )
+    
+    # With Fallback (default)
+    result = email_service.send()  # fallback=True by default
+    
+    print("Primary sent to:", result["is_success"])
+    print("Primary sent to:", result["successful"])
+    print("Fallback sent to:", result["fallback"])
+    
+    # Without Fallback
+    result = email_service.send(fallback=False)
+)
+```
+
+## Templates Example
+> emails/welcome.txt
+```txt
+Hi {{ user_name }},
+
+Welcome to {{ app_name }}!
+```
+> emails/welcome.html
+```html
+<h1>Hi {{ user_name }},</h1>
+<p>Welcome to <strong>{{ app_name }}</strong>!</p>
+```
+
 
 ## ⚠️ Exception Throttling
 

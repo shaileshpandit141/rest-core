@@ -6,7 +6,7 @@ from django.db.models import ForeignKey
 
 
 class Command(BaseCommand):
-    help = "Create or update model records from a JSON file, supporting FK lookups and safe error handling."
+    help = "Create or update model records from a JSON file, supporting ForeignKey lookups and safe error handling."
 
     def add_arguments(self, parser):
         parser.add_argument('--model', required=True, type=str, help="Model in 'app_label.ModelName' format")

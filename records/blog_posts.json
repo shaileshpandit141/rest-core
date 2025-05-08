@@ -1,0 +1,45 @@
+[
+  {
+    "title": "How to Learn Django in 30 Days",
+    "content": "This is a beginner-friendly guide to mastering Django in 30 days.",
+    "status": "published"
+  },
+  {
+    "title": "Why Python is the Best Language for Web Development",
+    "content": "Python's simplicity and readability make it ideal for web development.",
+    "status": "published"
+  },
+  {
+    "title": "Understanding Django ORM with Practical Examples",
+    "content": "In this post, we dive into Django ORM's power with real examples.",
+    "status": "draft"
+  },
+  {
+    "title": "10 Tips for Writing Clean Django Code",
+    "content": "These tips will help you write maintainable and readable Django code.",
+    "status": "published"
+  },
+  {
+    "title": "Deploying Django Apps with Docker",
+    "content": "Learn how to containerize and deploy Django apps using Docker.",
+    "status": "draft"
+  },
+  {
+    "title": "Deploying Node Apps with Docker",
+    "content": "Learn how to containerize and deploy Node apps using Docker.",
+    "status": "draft",
+    "owner": "shailesh"
+  },
+  {
+    "title": "New Deploying Node Apps with Docker",
+    "content": "Learn how to containerize and deploy Node apps using Docker.",
+    "status": "draft",
+    "owner": "shailesh"
+  },
+  {
+    "title": "Again New Deploying Node Apps with Docker",
+    "content": "Learn how to containerize and deploy Node apps using Docker.",
+    "status": "draft",
+    "owner": "shailesh"
+  }
+]

@@ -1,4 +1,5 @@
 import logging
+
 from django.db import models
 
 logger = logging.getLogger(__name__)
@@ -35,7 +36,10 @@ class FileUrlMixin:
         for field_name, field_value in representation.items():
             model_field = model_fields.get(field_name)
 
-            is_file_field = isinstance(model_field, (models.FileField, models.ImageField)) or field_name in manual_fields
+            is_file_field = (
+                isinstance(model_field, (models.FileField, models.ImageField))
+                or field_name in manual_fields
+            )
 
             if not is_file_field:
                 continue
@@ -44,7 +48,9 @@ class FileUrlMixin:
                 # ModelSerializer: use instance field
                 if model_field:
                     file_instance = getattr(instance, field_name, None)
-                    file_url = getattr(file_instance, "url", None) if file_instance else None
+                    file_url = (
+                        getattr(file_instance, "url", None) if file_instance else None
+                    )
                 else:
                     # Normal Serializer: assume the value itself is the URL or path
                     file_url = field_value

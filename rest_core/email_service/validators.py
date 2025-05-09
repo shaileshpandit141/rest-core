@@ -1,5 +1,6 @@
 from typing import Any, Callable
 
+
 class EmailServiceValidator:
     def validate(
         self,

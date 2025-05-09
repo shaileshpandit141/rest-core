@@ -36,6 +36,7 @@ class PageNumberPagination(DrfPageNumberPagination):
             - previous (str): URL for the previous page.
             - results (list): The paginated data provided.
     """
+
     # Allow clients to set page size via query param
     page_size_query_param = "page-size"
 

@@ -1,15 +1,17 @@
 import logging
+from smtplib import SMTPException
+from typing import Any
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
 from django.core.validators import validate_email
 from django.template.loader import render_to_string
-from smtplib import SMTPException
-from .models import Emails, Templates
-from typing import Any
-from .validators import EmailServiceValidator
+
 from .exceptions import EmailsError, TemplatesError
+from .models import Emails, Templates
 from .types import SendStatusTyped
+from .validators import EmailServiceValidator
 
 # Set up logger
 logger = logging.getLogger(__name__)

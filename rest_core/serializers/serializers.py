@@ -1,18 +1,17 @@
-from rest_framework.serializers import (
-    Field,
-    ModelSerializer as DrfModelSerializer,
-    Serializer as DrfSerializer
-)
+import logging
 from typing import Any, Optional, Type
+
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models import Model
-import logging
+from rest_framework.serializers import Field
+from rest_framework.serializers import ModelSerializer as DrfModelSerializer
+from rest_framework.serializers import Serializer as DrfSerializer
 
 logger = logging.getLogger(__name__)
 
 
 class Serializer(DrfSerializer):
-    Meta: Optional[Type]
+    Meta: Optional[Type] = None
     file_fields: list[str] | None = None
 
     def create(self, validated_data) -> Any:
@@ -190,4 +189,3 @@ class ModelSerializer(DrfModelSerializer):
             representation = self.enhance_file_fields(instance, representation)
 
         return representation
-

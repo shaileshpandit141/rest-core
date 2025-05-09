@@ -6,8 +6,8 @@ from rest_framework.views import APIView
 
 from blog.models import BlogPost
 from blog.serializers import BlogPostSerializer
-from rest_core.response import Response
 from rest_core.pagination import get_paginated_data
+from rest_core.response import Response
 
 User = get_user_model()
 

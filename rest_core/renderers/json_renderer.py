@@ -2,12 +2,12 @@ from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
-from rest_framework.renderers import JSONRenderer
+from rest_framework.renderers import JSONRenderer as DrfJSONRenderer
 
 from ..throttle_inspector import ThrottleInspector
 
 
-class JSONBaseRenderer(JSONRenderer):
+class JSONRenderer(DrfJSONRenderer):
     """A custom JSON renderer that extends Django REST Framework's JSONRenderer.
 
     This renderer provides a standardized JSON response format with additional metadata

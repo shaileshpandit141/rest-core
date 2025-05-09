@@ -1,3 +1,3 @@
-from .renderers import JSONBaseRenderer
+from .json_renderer import JSONRenderer
 
-__all__ = ["JSONBaseRenderer"]
+__all__ = ["JSONRenderer"]

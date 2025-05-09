@@ -16,12 +16,12 @@
 - 📑 **Enhanced Serializers** with extra fields, bulk creation, error syncing, and file URL handling
 - 📧 **EmailService** A Robust Django Email Sending Utility
 - ⚙️ **mock_records** is a custom Django management command that allows you to insert or update mock data into any Django model using a JSON file.
-    - Supports any model via `app_label.ModelName`
-    - Reads data from a JSON file
-    -  Handles ForeignKey relationships dynamically
-    - Automatically skips, inserts, or updates existing records
-    - Optionally forces updates on existing records with `--force`
-    - Clean and detailed CLI output for each operation
+  - Supports any model via `app_label.ModelName`
+  - Reads data from a JSON file
+  - Handles ForeignKey relationships dynamically
+  - Automatically skips, inserts, or updates existing records
+  - Optionally forces updates on existing records with `--force`
+  - Clean and detailed CLI output for each operation
 
 ## 📦 Installation
 
@@ -38,7 +38,7 @@ pip install rest-core
 ```python
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": [
-        "rest_core.renderers.JSONBaseRenderer",
+        "rest_core.renderers.JSONRenderer",
     ],
     "EXCEPTION_HANDLER": "rest_core.exceptions.base_exception_handler",
     "DEFAULT_THROTTLE_CLASSES": [
@@ -91,7 +91,8 @@ class ListAPIView(APIView):
 
 ## 📄 Example API Response Format
 
-### Standard Response:
+### Standard Response
+
 ```json
 {
   "status": "succeeded",
@@ -154,7 +155,8 @@ class ListAPIView(APIView):
         )
 ```
 
-### Paginated Response:
+### Paginated Response
+
 ```json
 {
   "status": "succeeded",
@@ -202,6 +204,7 @@ class ListAPIView(APIView):
 ```
 
 ## 📧 EmailService Usages
+
 ```python
 from rest_code.email_service import EmailService, Emails, Templates
 
@@ -236,25 +239,32 @@ email_service = EmailService(
 ```
 
 ## Templates Example
+
 > emails/welcome.txt
+
 ```txt
 Hi {{ user_name }},
 
 Welcome to {{ app_name }}!
 ```
+
 > emails/welcome.html
+
 ```html
 <h1>Hi {{ user_name }},</h1>
 <p>Welcome to <strong>{{ app_name }}</strong>!</p>
 ```
 
 ## 🧪 mock_records feature Usage
+
 ```bash
 python manage.py mock_records --model <app_label.ModelName> --records <path/to/records.json> [--force]
 ```
 
 ## 📄 Example of mock_records
-JSON File: books.json
+
+> JSON File: books.json
+
 ```json
 [
   {
@@ -270,11 +280,14 @@ JSON File: books.json
 ]
 ```
 
-## Then run:
+## Then run
+
 ```bash
 python manage.py mock_records --model library.Book --records records/books.json
 ```
+
 ## Logs
+
 ```bash
 Inserted record 1
 Inserted record 2

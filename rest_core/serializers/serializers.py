@@ -1,5 +1,6 @@
-from rest_framework.serializers import Serializer as DrfSerializer
 from rest_framework.serializers import ModelSerializer as DrfModelSerializer
+from rest_framework.serializers import Serializer as DrfSerializer
+
 from .mixins import FileUrlMixin, RecordsCreationMixin
 
 
@@ -14,6 +15,7 @@ class Serializer(FileUrlMixin, RecordsCreationMixin, DrfSerializer):
     Use this class when you need a base serializer with additional features
     provided by the included mixins.
     """
+
     pass
 
 
@@ -28,4 +30,5 @@ class ModelSerializer(FileUrlMixin, RecordsCreationMixin, DrfModelSerializer):
     Use this class when you need a model serializer with additional features
     provided by the included mixins.
     """
+
     pass

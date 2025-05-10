@@ -58,3 +58,41 @@ class Response(DrfResponse):
             exception=exception,
             content_type=content_type,
         )
+
+
+def success_response(
+    message: str,
+    data: APIResponseData,
+    status: int = 200,
+    headers: Optional[dict[str, str]] = None,
+    exception: bool = False,
+    content_type: Optional[str] = None,
+) -> Response:
+    
+    return Response(
+        message=message,
+        data=data,
+        status=status,
+        headers=headers,
+        exception=exception,
+        content_type=content_type,
+    )
+
+
+def failure_response(
+    message: str,
+    errors: APIValidationErrors,
+    status: int = 404,
+    headers: Optional[dict[str, str]] = None,
+    exception: bool = False,
+    content_type: Optional[str] = None,
+) -> Response:
+
+    return Response(
+        message=message,
+        data=errors,
+        status=status,
+        headers=headers,
+        exception=exception,
+        content_type=content_type,
+    )

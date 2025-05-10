@@ -76,11 +76,7 @@ class JSONRenderer(DrfJSONRenderer):
                 "data": None,
                 "errors": None,
                 "meta": {
-                    "response_time": (
-                        response.headers.get("X-Response-Time", "none")
-                        if hasattr(response, "headers")
-                        else "none"
-                    ),
+                    "response_time": "none",
                     "request_id": str(uuid4()),
                     "timestamp": datetime.utcnow().isoformat(),
                     "documentation_url": "none",

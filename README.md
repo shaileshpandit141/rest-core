@@ -68,7 +68,7 @@ MIDDLEWARE = [
 ### Example View Using Custom Response
 
 ```python
-from rest_core.response.response import Response
+from rest_core.response import Response, success_response, failure_response
 from rest_framework.views import APIView
 from rest_core.pagination import get_paginated_data
 from rest_core.serializers import ModelSerializer, FileUrlMixin
@@ -86,6 +86,12 @@ class ListAPIView(APIView):
             message="The requested resource was retrieved successfully",
             data=serializer.data,
             status=200
+        )
+        
+        # or you can also use success_response
+        return success_response(
+            message="The requested resource was retrieved successfully",
+            data=serializer.data,
         )
 ```
 

@@ -1,5 +1,5 @@
-from typing import Any, Optional, Union
-
+from typing import Any, Optional
+from .types import APIResponseData, APIValidationErrors
 from rest_framework.response import Response as DrfResponse
 
 
@@ -13,7 +13,8 @@ class Response(DrfResponse):
     Args:
         message (Optional[str]): A message to include in the response. Defaults to None.
         data (Optional[Union[dict[str, Any], list[Any]]]): The data data to be included
-            in the response. Can be a dictionary or list. Defaults to None.
+            in the response. Can be a dictionary or list. Defaults to None.1
+            
         status (Optional[int]): The HTTP status code for the response. Defaults to None.
         headers (Optional[dict[str, str]]): Additional headers to include in the response.
             Defaults to None.
@@ -39,7 +40,7 @@ class Response(DrfResponse):
     def __init__(
         self,
         message: Optional[str] = None,
-        data: Optional[Union[dict[str, Any], list[Any]]] = None,
+        data: Optional[APIResponseData | APIValidationErrors] = None,
         status: Optional[int] = None,
         headers: Optional[dict[str, str]] = None,
         exception: bool = False,

@@ -11,7 +11,13 @@ class FileUrlMixin:
     to be absolute URLs, compatible with cloud storage backends.
     """
 
-    file_fields = None  # manually specify file fields for non-model serializers
+    # manually specify file fields for non-model serializers
+    file_fields: list[str] | None = None
+
+    def to_representation(self, instance):
+        # Call the serializer's normal representation
+        representation = super().to_representation(instance)  # type: ignore
+        return self.enhance_file_fields(instance, representation)
 
     def enhance_file_fields(self, instance, representation: dict) -> dict:
         """
@@ -24,7 +30,7 @@ class FileUrlMixin:
         Returns:
             dict: The updated representation.
         """
-        request = self.context.get("request", None)
+        request = self.context.get("request", None)  # type: ignore
 
         # Detect file fields
         model_fields = {}

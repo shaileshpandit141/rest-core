@@ -1,5 +1,7 @@
 from django.db import models
+
 from .todo_model import Todo
+
 
 class SubTask(models.Model):
     """Model class for SubTask"""

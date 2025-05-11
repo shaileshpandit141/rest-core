@@ -1,8 +1,8 @@
-from django.db import models
 from django.contrib.auth import get_user_model
+from django.db import models
 from django.utils import timezone
+
 from .tag_model import Tag
-from ..validators import TagValidators
 
 User = get_user_model()
 
@@ -99,7 +99,7 @@ class Todo(models.Model):
         choices=PRIORITY_CHOICES,
         default="M",
         error_messages={
-            "invalid_choice": f"Please choose one of the following options: {", ".join([f"{t[0]}: {t[-1]}" for t in PRIORITY_CHOICES])}.",
+            "invalid_choice": f"Please choose one of the following options: {', '.join([f'{t[0]}: {t[-1]}' for t in PRIORITY_CHOICES])}.",
         },
     )
     status = models.CharField(
@@ -109,7 +109,7 @@ class Todo(models.Model):
         choices=PRIORITY_CHOICES,
         default="P",
         error_messages={
-            "invalid_choice": f"Please choose one of the following options: {", ".join([f"{t[0]}: {t[-1]}" for t in STATUS_CHOICES])}."
+            "invalid_choice": f"Please choose one of the following options: {', '.join([f'{t[0]}: {t[-1]}' for t in STATUS_CHOICES])}."
         },
     )
     tags = models.ManyToManyField(

@@ -1,4 +1,4 @@
-from .tag_view import TagListAPIView, TagDetailAPIView
+from .tag_view import TagDetailAPIView, TagListAPIView
 
 __all__ = [
     "TagListAPIView",

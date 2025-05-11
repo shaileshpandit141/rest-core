@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_core",
     "todo_app",
-    "blog",
 ]
 
 MIDDLEWARE = [

@@ -6,6 +6,9 @@ dist/
 wheels/
 *.egg-info
 .idea/
+.ropeproject
+.ruff_cache
+migrations/
 
 # Virtual environments
 .venv

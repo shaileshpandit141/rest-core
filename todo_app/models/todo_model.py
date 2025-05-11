@@ -54,7 +54,7 @@ class Todo(models.Model):
     )
     title = models.CharField(
         max_length=255,
-        unique=True,
+        unique=False,
         blank=False,
         null=False,
         db_index=True,
@@ -106,7 +106,7 @@ class Todo(models.Model):
         max_length=255,
         unique=False,
         db_index=True,
-        choices=PRIORITY_CHOICES,
+        choices=STATUS_CHOICES,
         default="P",
         error_messages={
             "invalid_choice": f"Please choose one of the following options: {', '.join([f'{t[0]}: {t[-1]}' for t in STATUS_CHOICES])}."

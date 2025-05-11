@@ -116,7 +116,6 @@ class Todo(models.Model):
         Tag,
         related_name="todos",
         blank=True,
-        validators=[TagValidators.validate_tag],
         error_messages={
             "invalid": "Invalid value",
             "invalid_choice": "Select a valid choice. That choice is not one of the available choices.",

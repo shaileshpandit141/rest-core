@@ -1,10 +1,11 @@
 import json
 from typing import Any
+
 from django.apps import apps
+from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
 from django.db import IntegrityError, transaction
 from django.db.models import ForeignKey, OneToOneField
-from django.core.exceptions import ValidationError
 
 
 class Command(BaseCommand):

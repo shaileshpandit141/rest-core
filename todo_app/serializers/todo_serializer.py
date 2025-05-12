@@ -2,12 +2,17 @@ from rest_core.serializers import ModelSerializer
 
 from ..models import Todo
 from .tag_serializer import TagSerializer
+from .user_serializer import UserSerializer
+
 
 class TodoSerializer(ModelSerializer):
     """Serializer class for Todo"""
 
     # Serializer to many-to-many relationship with tags
     tags = TagSerializer(many=True, required=False)
+
+    # Serializer to ForeginForeignKey relationship with user
+    user = UserSerializer(read_only=True)
 
     class Meta:
         model = Todo

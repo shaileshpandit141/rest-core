@@ -1,10 +1,13 @@
 from rest_core.serializers import ModelSerializer
 
 from ..models import Todo
-
+from .tag_serializer import TagSerializer
 
 class TodoSerializer(ModelSerializer):
     """Serializer class for Todo"""
+
+    # Serializer to many-to-many relationship with tags
+    tags = TagSerializer(many=True, required=False)
 
     class Meta:
         model = Todo
@@ -22,4 +25,4 @@ class TodoSerializer(ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = ["id", "user", "created_at", "updated_at"]

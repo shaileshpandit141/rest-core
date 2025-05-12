@@ -110,6 +110,32 @@ class TagDetailAPIView(APIView):
             message="Tag update failed",
             errors=serializer.errors,
         )
+    
+    def patch(self, request, tag_id: int) -> Response:
+        """Handle PATCH request for partial tag update."""
+
+        # Get tag object by id.
+        tag = self.get_object(tag_id)
+        if not tag:
+            return failure_response(
+                message="Tag not found",
+                errors={"tag": ["Tag with this id does not exist."]},
+            )
+
+        # Serializer request data with tag serializer
+        serializer = TagSerializer(tag, data=request.data, partial=True)
+
+        # Check serializer is valid or not
+        if serializer.is_valid():
+            serializer.save()
+            return success_response(
+                message="Tag updated successfully",
+                data=serializer.data,
+            )
+        return failure_response(
+            message="Tag update failed",
+            errors=serializer.errors,
+        )
 
     def delete(self, request, tag_id: int) -> Response:
         """Handle DELETE request for tag deletion."""

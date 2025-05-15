@@ -71,9 +71,10 @@ MIDDLEWARE = [
 from rest_core.response import Response, success_response, failure_response
 from rest_framework.views import APIView
 from rest_core.pagination import get_paginated_data
-from rest_core.serializers import ModelSerializer, FileUrlMixin
+from rest_framework.serializers import ModelSerializer
+from rest_core.serializers.mixins import FileUrlMixin, RecordsCreationMixin
 
-class UserSerializer(FileUrlMixin, ModelSerializer):
+class UserSerializer(RecordsCreationMixin, FileUrlMixin, ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'avatar']

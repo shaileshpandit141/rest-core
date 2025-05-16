@@ -110,7 +110,7 @@ class TagDetailAPIView(APIView):
             message="Tag update failed",
             errors=serializer.errors,
         )
-    
+
     def patch(self, request, tag_id: int) -> Response:
         """Handle PATCH request for partial tag update."""
 

@@ -1,4 +1,5 @@
 from typing import Optional
+
 from rest_framework.response import Response
 
 from .types import APIResponseData, APIValidationErrors

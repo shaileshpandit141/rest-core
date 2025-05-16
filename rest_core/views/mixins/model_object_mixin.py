@@ -1,4 +1,5 @@
-from typing import TypeVar, Any, Generic
+from typing import Any, Generic, TypeVar
+
 from django.db.models import Model, QuerySet
 
 # Define a generic type variable bound to Django Model

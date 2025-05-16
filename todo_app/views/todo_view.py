@@ -90,9 +90,7 @@ class TodoDetailAPIView(APIView):
             )
 
         # Serializer request data with todo serializer
-        serializer = TodoSerializer(
-            instance=todo, data=request.data
-        )
+        serializer = TodoSerializer(instance=todo, data=request.data)
 
         # Check serializer is valid or not
         if serializer.is_valid():

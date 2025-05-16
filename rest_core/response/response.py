@@ -1,44 +1,11 @@
-from typing import Any, Optional
+from typing import Optional
 
-from rest_framework.response import Response as DrfResponse
+from rest_framework.response import Response as Response
 
 from .types import APIResponseData, APIValidationErrors
 
 
-class Response(DrfResponse):
-    """
-    A custom Response class that extends Django Rest Framework's Response.
-
-    This class provides a standardized way to format API responses by wrapping the data
-    in a consistent structure with a message and data.
-
-    Args:
-        message (Optional[str]): A message to include in the response. Defaults to None.
-        data (Optional[Union[dict[str, Any], list[Any]]]): The data data to be included
-            in the response. Can be a dictionary or list. Defaults to None.1
-
-        status (Optional[int]): The HTTP status code for the response. Defaults to None.
-        headers (Optional[dict[str, str]]): Additional headers to include in the response.
-            Defaults to None.
-        exception (bool): Whether the response is an exception response. Defaults to False.
-        content_type (Optional[str]): The content type of the response. Defaults to None.
-
-    Example:
-        ```python
-        response = Response(
-            message="Success",
-            data={"user": "john_doe"},
-            status=200
-        ```
-
-    Returns:
-        Response object with formatted data in the structure:
-        {
-            "message": str,
-            "data": {"user": "john_doe"}
-        }
-    """
-
+class APIResponseBuilder:
     def __init__(
         self,
         message: Optional[str] = None,
@@ -48,18 +15,35 @@ class Response(DrfResponse):
         exception: bool = False,
         content_type: Optional[str] = None,
     ) -> None:
-        formatted_data: dict[str, Any] = {
-            "message": message,
-            "data": data,
-        }
+        self.message = message
+        self.data = data
+        self.status = status
+        self.headers = headers
+        self.exception = exception
+        self.content_type = content_type
 
-        super().__init__(
-            data=formatted_data,
-            status=status,
-            headers=headers,
-            exception=exception,
-            content_type=content_type,
+    def build(self) -> Response:
+        """
+        Build the API response object.
+
+        Returns:
+            Response: A Django Rest Framework Response object with the specified attributes.
+        """
+        # Create the response object using Django Rest Framework's Response class
+        response = Response(
+            data=self.data,
+            status=self.status,
+            headers=self.headers,
+            exception=self.exception,
+            content_type=self.content_type,
         )
+
+        # Update the response status text as for message
+        if self.message:
+            setattr(response, "status_text", self.message)
+
+        # Finally return the response object
+        return response
 
 
 def success_response(
@@ -97,7 +81,8 @@ def success_response(
             "data": {"id": 123, "name": "John Doe"}
         }
     """
-    return Response(
+    # Create the APIResponseBuilder instance
+    response_builder = APIResponseBuilder(
         message=message,
         data=data,
         status=status,
@@ -105,6 +90,11 @@ def success_response(
         exception=exception,
         content_type=content_type,
     )
+    # Build the response object
+    response = response_builder.build()
+
+    # Finally return the response object
+    return response
 
 
 def failure_response(
@@ -142,7 +132,8 @@ def failure_response(
             "data": {"detail": "The requested resource does not exist."}
         }
     """
-    return Response(
+    # Create the APIResponseBuilder instance
+    response_builder = APIResponseBuilder(
         message=message,
         data=errors,
         status=status,
@@ -150,3 +141,28 @@ def failure_response(
         exception=exception,
         content_type=content_type,
     )
+    # Build the response object
+    response = response_builder.build()
+
+    # Finally return the response object
+    return response
+
+
+def destroy_response() -> Response:
+    """
+    Generate a standardized response for successful deletion operations.
+    """
+    # Create the APIResponseBuilder instance
+    response_builder = APIResponseBuilder(
+        message=None,
+        data=None,
+        status=204,
+        headers=None,
+        exception=False,
+        content_type=None,
+    )
+    # Build the response object
+    response = response_builder.build()
+
+    # Finally return the response object
+    return response

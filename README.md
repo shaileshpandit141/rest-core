@@ -38,7 +38,7 @@ pip install rest-core
 ```python
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": [
-        "rest_core.renderers.JSONRenderer",
+        "rest_core.renderers.StructuredJSONRenderer",
     ],
     "EXCEPTION_HANDLER": "rest_core.exceptions.base_exception_handler",
     "DEFAULT_THROTTLE_CLASSES": [

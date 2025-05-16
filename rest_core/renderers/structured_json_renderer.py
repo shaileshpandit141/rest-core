@@ -2,13 +2,13 @@ from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
-from rest_framework.renderers import JSONRenderer as DrfJSONRenderer
+from rest_framework.renderers import JSONRenderer
 
 from ..throttle_inspector import ThrottleInspector
 
 
-class JSONRenderer(DrfJSONRenderer):
-    """A custom JSON renderer that extends Django REST Framework's JSONRenderer.
+class StructuredJSONRenderer(JSONRenderer):
+    """A custom JSON renderer that extends Django REST Framework's StructuredJSONRenderer.
 
     This renderer provides a standardized JSON response format with additional metadata
     and error handling capabilities. It wraps the response data in a consistent structure
@@ -73,7 +73,7 @@ class JSONRenderer(DrfJSONRenderer):
                 "status": "succeeded",
                 "status_code": status_code,
                 "message": response.status_text,
-                "data": None,
+                "data": data,
                 "errors": None,
                 "meta": {
                     "response_time": "none",
@@ -84,17 +84,7 @@ class JSONRenderer(DrfJSONRenderer):
                 },
             }
 
-            # Handle Drf uper flexible response data
-            if "message" in data:
-                message = data["message"]
-                if message is not None:
-                    payload.update({"message": message})
-            if "data" in data:
-                payload.update({"data": data["data"]})
-            else:
-                payload.update({"data": data})
-
-            # Detect Drf errors
+            # Handle response errors
             if not str(status_code).startswith("2"):
                 payload.update(
                     {"status": "failed", "errors": payload["data"], "data": None}

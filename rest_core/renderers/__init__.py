@@ -1,3 +1,3 @@
-from .json_renderer import JSONRenderer
+from .json_renderer import StructuredJSONRenderer
 
-__all__ = ["JSONRenderer"]
+__all__ = ["StructuredJSONRenderer"]

@@ -1,6 +1,4 @@
-from datetime import datetime
 from typing import Any
-from uuid import uuid4
 
 from rest_framework.renderers import JSONRenderer
 
@@ -22,10 +20,6 @@ class StructuredJSONRenderer(JSONRenderer):
         "data": Any | null,
         "errors": Any | null,
         "meta": {
-            "response_time": str,
-            "request_id": str,
-            "timestamp": str,
-            "documentation_url": str,
             "rate_limits": {
                 "throttled_by": str | null,
                 "throttles": {
@@ -75,13 +69,13 @@ class StructuredJSONRenderer(JSONRenderer):
             "data": data,
             "errors": None,
             "meta": {
-                "response_time": "none",
-                "request_id": str(uuid4()),
-                "timestamp": datetime.utcnow().isoformat(),
-                "documentation_url": "none",
                 "rate_limits": throttle_info,
             },
         }
+
+        # Update response message if available
+        if hasattr(response, "message"):
+            payload["message"] = response.message
 
         # If status is not 2xx, consider it a failed response
         if not str(status_code).startswith("2"):

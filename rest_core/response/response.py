@@ -41,9 +41,11 @@ class APIResponseBuilder:
             content_type=self.content_type,
         )
 
+        # Set the message as response attribute if provided
         if self.message:
-            setattr(response, "status_text", self.message)
+            setattr(response, "message", self.message)
 
+        # Return the constructed response object
         return response
 
 

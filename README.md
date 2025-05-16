@@ -68,8 +68,9 @@ MIDDLEWARE = [
 ### Example View Using Custom Response
 
 ```python
-from rest_core.response import Response, success_response, failure_response
+from rest_core.response import success_response, failure_response
 from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_core.pagination import get_paginated_data
 from rest_framework.serializers import ModelSerializer
 from rest_core.serializers.mixins import FileUrlMixin, RecordsCreationMixin
@@ -84,7 +85,6 @@ class ListAPIView(APIView):
         queryset = User.objects.all()
         serializer = UserSerializer(instance=queryset, many=True)
         return Response(
-            message="The requested resource was retrieved successfully",
             data=serializer.data,
             status=200
         )
@@ -111,14 +111,9 @@ class ListAPIView(APIView):
       "username": "user1",
       "email": "user1@example.com"
     }
-    // ... more items
   ],
   "errors": null,
   "meta": {
-    "response_time": "0.001892 seconds",
-    "request_id": "uuid",
-    "timestamp": "2025-04-23T09:00:00.000Z",
-    "documentation_url": "N/A",
     "rate_limits": {
       "throttled_by": null,
       "throttles": {
@@ -137,7 +132,7 @@ class ListAPIView(APIView):
 ### Example View Using for Custom Paginated Response
 
 ```python
-from rest_core.response.response import Response
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_core.pagination import get_paginated_data
 from rest_core.serializers import ModelSerializer, FileUrlMixin
@@ -156,7 +151,6 @@ class ListAPIView(APIView):
             serializer_class=UserSerializer
         )
         return Response(
-            message="The requested resource was retrieved successfully",
             data=paginated_data,
             status=200
         )
@@ -168,33 +162,26 @@ class ListAPIView(APIView):
 {
   "status": "succeeded",
   "status_code": 200,
-  "message": "The requested resource was retrieved successfully",
+  "message": "OK",
   "data": {
-    "current_page": 1,
-    "total_pages": 5,
-    "total_items": 50,
-    "items_per_page": 10,
-    "has_next": true,
-    "has_previous": false,
-    "next_page_number": 2,
-    "previous_page_number": null,
-    "next": "http://api.example.com/users?page=2",
-    "previous": null,
+    "page": {
+      "current": 2,
+      "total": 10,
+      "size": 2,
+      "total_items": 20,
+      "next": "http://127.0.0.1:8000/api/v1/tags/?page=3",
+      "previous": "http://127.0.0.1:8000/api/v1/tags/"
+    },
     "results": [
       {
         "id": 1,
         "username": "user1",
         "email": "user1@example.com"
       }
-      // ... more items
     ]
   },
   "errors": null,
   "meta": {
-    "response_time": "0.001892 seconds",
-    "request_id": "uuid",
-    "timestamp": "2025-04-23T09:00:00.000Z",
-    "documentation_url": "N/A",
     "rate_limits": {
       "throttled_by": null,
       "throttles": {
@@ -218,19 +205,19 @@ from rest_code.email_service import EmailService, Emails, Templates
 email_service = EmailService(
     subject="Welcome to rest_core!",
     emails=Emails(
-        from_email="your@email.com",
-        to_emails=[
-            "recipient1@example.com",
-            "recipient2@example.com"
-        ]
+      from_email="your@email.com",
+      to_emails=[
+        "recipient1@example.com",
+        "recipient2@example.com"
+      ]
     ),
     context={
-        "user": "John Doe",
-        "service": "rest core app"
+      "user": "John Doe",
+      "service": "rest core app"
     },
     templates=Templates(
-        text_template="emails/welcome.txt",
-        html_template="emails/welcome.html"
+      text_template="emails/welcome.txt",
+      html_template="emails/welcome.html"
     )
 
     # With Fallback (default)

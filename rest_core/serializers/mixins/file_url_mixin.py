@@ -1,5 +1,5 @@
 import logging
-
+from typing import Any
 from django.db import models
 
 logger = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ class FileUrlMixin:
     # manually specify file fields for non-model serializers
     file_fields: list[str] | None = None
 
-    def to_representation(self, instance):
+    def to_representation(self, instance) -> dict[Any, Any]:
         # Call the serializer's normal representation
         representation = super().to_representation(instance)  # type: ignore
         return self.enhance_file_fields(instance, representation)

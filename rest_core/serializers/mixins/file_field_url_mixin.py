@@ -5,7 +5,7 @@ from django.db import models
 logger = logging.getLogger(__name__)
 
 
-class FileUrlMixin:
+class FileFieldUrlMixin:
     """
     A mixin that updates FileField and ImageField URLs in serializer output
     to be absolute URLs, compatible with cloud storage backends.

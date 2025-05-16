@@ -1,9 +1,10 @@
-from rest_core.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer
+from rest_core.serializers.mixins import RecordsCreationMixin
 
 from ..models import SubTask
 
 
-class SubTaskSerializer(ModelSerializer):
+class SubTaskSerializer(RecordsCreationMixin, ModelSerializer):
     """Serializer class for SubTask"""
 
     class Meta:

@@ -1,11 +1,12 @@
-from rest_core.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer
+from rest_core.serializers.mixins import RecordsCreationMixin
 
 from ..models import Todo
 from .tag_serializer import TagSerializer
 from .user_serializer import UserSerializer
 
 
-class TodoSerializer(ModelSerializer):
+class TodoSerializer(RecordsCreationMixin, ModelSerializer):
     """Serializer class for Todo"""
 
     # Serializer to many-to-many relationship with tags

@@ -1,11 +1,12 @@
 from django.contrib.auth import get_user_model
 
-from rest_core.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer
+from rest_core.serializers.mixins import RecordsCreationMixin
 
 User = get_user_model()
 
 
-class UserSerializer(ModelSerializer):
+class UserSerializer(RecordsCreationMixin, ModelSerializer):
     """Serializer class for User"""
 
     class Meta:

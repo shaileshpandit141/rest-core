@@ -8,94 +8,86 @@ from ..throttle_inspector import ThrottleInspector
 
 
 class StructuredJSONRenderer(JSONRenderer):
-    """A custom JSON renderer that extends Django REST Framework's StructuredJSONRenderer.
+    """
+    Custom JSON renderer that standardizes API responses across the application.
 
-    This renderer provides a standardized JSON response format with additional metadata
-    and error handling capabilities. It wraps the response data in a consistent structure
-    that includes status, status code, message, data, errors, and metadata.
+    Adds metadata and consistent formatting for both success and error responses.
 
-    Attributes:
-        None
-
-    Methods:
-        render(data, accepted_media_type=None, renderer_context=None) -> bytes:
-            Renders the response data into a standardized JSON format.
-
-    Response Format:
-        {
-            "status": str,                  # "succeeded" or "failed"
-            "status_code": int,             # HTTP status code
-            "message": str,                 # Response message or status text
-            "data": Any,                    # Response payload for successful requests
-            "errors": Any,                  # Error details for failed requests
-                "response_time": str,       # Response processing time
-                "request_id": str,          # Unique request identifier
-                "timestamp": str,           # UTC timestamp in ISO format
-                "documentation_url": str,   # API documentation URL
-                "rate_limits": dict         # Rate limiting information
+    Standard Response Format:
+    ```
+    {
+        "status": "succeeded" | "failed",
+        "status_code": int,
+        "message": str,
+        "data": Any | null,
+        "errors": Any | null,
+        "meta": {
+            "response_time": str,
+            "request_id": str,
+            "timestamp": str,
+            "documentation_url": str,
+            "rate_limits": {
+                "throttled_by": str | null,
+                "throttles": {
+                    "name": {
+                        "limit": int,
+                        "remaining": int,
+                        "reset_time": str,
+                        "retry_after": str
+                    }
+                }
+            }
+        }
+    }
+    ```
 
     Notes:
-        - For successful responses (2xx), data contains the response payload
-        - For error responses, errors contains the error details and data is None
-        - 204 No Content responses return None
-        - Throttling information is automatically included in meta.rate_limits
-        - Supports DRF's flexible response format with 'message' and 'payload' keys
+        - For 2xx responses, `data` is populated and `errors` is null.
+        - For error responses (non-2xx), `errors` is populated and `data` is null.
+        - For 204 No Content, the response is untouched.
+        - Throttle rate-limiting info is added to `meta.rate_limits` if available.
     """
 
     def render(self, data, accepted_media_type=None, renderer_context=None) -> bytes:
-        # If renderer_context is None, return the data as is
+        # If renderer context is missing, fallback to default rendering
         if renderer_context is None:
             return super().render(data, accepted_media_type, renderer_context)
 
-        # Get the response object from the renderer context
-        response = renderer_context.get("response", None)
+        response = renderer_context.get("response")
+        if response is None:
+            return super().render(data, accepted_media_type, renderer_context)
 
-        # If the response object is not None, get the status code and status text
-        if response is not None:
-            status_code = response.status_code
-            throttle_details: dict[str, Any] = {}
+        status_code = response.status_code
+        throttle_info: dict[str, Any] = {}
 
-            # Access the view instance from the renderer context
-            view = renderer_context.get("view", None)
+        # Attempt to get view context for throttle introspection
+        view = renderer_context.get("view")
+        if view is not None:
+            inspector = ThrottleInspector(view)
+            throttle_info = inspector.get_details()
+            inspector.attach_headers(response, throttle_info)
 
-            if view is not None:
-                # Initialize ThrottleInspector class
-                throttle_inspector = ThrottleInspector(view)
+        # Construct initial payload
+        payload: dict[str, Any] = {
+            "status": "succeeded",
+            "status_code": status_code,
+            "message": getattr(response, "status_text", ""),
+            "data": data,
+            "errors": None,
+            "meta": {
+                "response_time": "none",
+                "request_id": str(uuid4()),
+                "timestamp": datetime.utcnow().isoformat(),
+                "documentation_url": "none",
+                "rate_limits": throttle_info,
+            },
+        }
 
-                # Inspect the throttles details
-                throttle_details = throttle_inspector.get_details()
+        # If status is not 2xx, consider it a failed response
+        if not str(status_code).startswith("2"):
+            payload["status"] = "failed"
+            payload["errors"] = payload["data"]
+            payload["data"] = None
 
-                # Attach throttle details in headers
-                throttle_inspector.attach_headers(response, throttle_details)
-
-            # Praper Initial payload data for response
-            payload: dict[str, Any] = {
-                "status": "succeeded",
-                "status_code": status_code,
-                "message": response.status_text,
-                "data": data,
-                "errors": None,
-                "meta": {
-                    "response_time": "none",
-                    "request_id": str(uuid4()),
-                    "timestamp": datetime.utcnow().isoformat(),
-                    "documentation_url": "none",
-                    "rate_limits": throttle_details,
-                },
-            }
-
-            # Handle response errors
-            if not str(status_code).startswith("2"):
-                payload.update(
-                    {"status": "failed", "errors": payload["data"], "data": None}
-                )
-            
-            # Return Final rendered
-            return super().render(
-                payload,
-                accepted_media_type,
-                renderer_context,
-            )
-
-        # If the response object is None, return the data as is
-        return super().render(data, accepted_media_type, renderer_context)
+        # Retuen Final rendered payload
+        return super().render(payload, accepted_media_type, renderer_context)

@@ -9,6 +9,7 @@ APIResponseData = dict[str, Any] | list[dict[str, Any]]
 # such as general detail messages or non-field-specific errors.
 class DefaultValidationError(TypedDict, total=False):
     detail: str
+    code: str
     non_field_errors: list[str]
 
 

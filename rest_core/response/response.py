@@ -1,11 +1,14 @@
 from typing import Optional
-
-from rest_framework.response import Response as Response
+from rest_framework.response import Response
 
 from .types import APIResponseData, APIValidationErrors
 
 
 class APIResponseBuilder:
+    """
+    A helper class to construct a Django REST Framework Response object.
+    """
+
     def __init__(
         self,
         message: Optional[str] = None,
@@ -24,12 +27,11 @@ class APIResponseBuilder:
 
     def build(self) -> Response:
         """
-        Build the API response object.
+        Build and return a DRF Response object with the given attributes.
 
         Returns:
-            Response: A Django Rest Framework Response object with the specified attributes.
+            Response: Configured Django REST Framework Response object.
         """
-        # Create the response object using Django Rest Framework's Response class
         response = Response(
             data=self.data,
             status=self.status,
@@ -38,11 +40,9 @@ class APIResponseBuilder:
             content_type=self.content_type,
         )
 
-        # Update the response status text as for message
         if self.message:
             setattr(response, "status_text", self.message)
 
-        # Finally return the response object
         return response
 
 
@@ -55,114 +55,82 @@ def success_response(
     content_type: Optional[str] = None,
 ) -> Response:
     """
-    Generate a standardized success response for API endpoints.
+    Generate a standardized success response.
 
     Args:
-        message (str): A message describing the success of the operation.
-        data (APIResponseData): The data to include in the response body.
-        status (int, optional): The HTTP status code for the response. Defaults to 200.
-        headers (Optional[dict[str, str]], optional): Additional headers to include in the response. Defaults to None.
-        exception (bool, optional): Whether the response is an exception response. Defaults to False.
-        content_type (Optional[str], optional): The content type of the response. Defaults to None.
+        message (str): Success message.
+        data (APIResponseData): Response payload.
+        status (int): HTTP status code (default: 200).
+        headers (dict[str, str], optional): Extra headers.
+        exception (bool): Indicates an exception response.
+        content_type (str, optional): Content type.
+
+    Returns:
+        Response: Structured success response with message and data.
 
     Example:
         ```python
         response = success_response(
-            message="Operation completed successfully.",
-            data={"id": 123, "name": "John Doe"},
-            status=200
+            message="User created successfully.",
+            data={"id": 1, "username": "john_doe"}
         )
         ```
-
-    Returns:
-        Response object with formatted data in the structure:
-        {
-            "message": str,
-            "data": {"id": 123, "name": "John Doe"}
-        }
     """
-    # Create the APIResponseBuilder instance
-    response_builder = APIResponseBuilder(
+    return APIResponseBuilder(
         message=message,
         data=data,
         status=status,
         headers=headers,
         exception=exception,
         content_type=content_type,
-    )
-    # Build the response object
-    response = response_builder.build()
-
-    # Finally return the response object
-    return response
+    ).build()
 
 
 def failure_response(
     message: str,
     errors: APIValidationErrors,
-    status: int = 404,
+    status: int = 400,
     headers: Optional[dict[str, str]] = None,
     exception: bool = False,
     content_type: Optional[str] = None,
 ) -> Response:
     """
-    Generate a standardized failure response for API endpoints.
+    Generate a standardized failure/error response.
 
     Args:
-        message (str): A message describing the failure or error.
-        errors (APIValidationErrors): The validation errors or details of the failure.
-        status (int, optional): The HTTP status code for the response. Defaults to 404.
-        headers (Optional[dict[str, str]], optional): Additional headers to include in the response. Defaults to None.
-        exception (bool, optional): Whether the response is an exception response. Defaults to False.
-        content_type (Optional[str], optional): The content type of the response. Defaults to None.
+        message (str): Error message.
+        errors (APIValidationErrors): Error or validation details.
+        status (int): HTTP status code (default: 400).
+        headers (dict[str, str], optional): Extra headers.
+        exception (bool): Indicates an exception response.
+        content_type (str, optional): Content type.
+
+    Returns:
+        Response: Structured error response with message and details.
 
     Example:
         ```python
         response = failure_response(
-            message="Resource not found.",
-            data={"detail": "The requested resource does not exist."},
-            status=404
+            message="Invalid input.",
+            errors={"email": ["This field is required."]}
         )
         ```
-
-    Returns:
-        Response object with formatted data in the structure:
-        {
-            "message": str,
-            "data": {"detail": "The requested resource does not exist."}
-        }
     """
-    # Create the APIResponseBuilder instance
-    response_builder = APIResponseBuilder(
+    return APIResponseBuilder(
         message=message,
         data=errors,
         status=status,
         headers=headers,
         exception=exception,
         content_type=content_type,
-    )
-    # Build the response object
-    response = response_builder.build()
-
-    # Finally return the response object
-    return response
+    ).build()
 
 
 def destroy_response() -> Response:
     """
-    Generate a standardized response for successful deletion operations.
-    """
-    # Create the APIResponseBuilder instance
-    response_builder = APIResponseBuilder(
-        message=None,
-        data=None,
-        status=204,
-        headers=None,
-        exception=False,
-        content_type=None,
-    )
-    # Build the response object
-    response = response_builder.build()
+    Generate a standardized response for successful deletion.
 
-    # Finally return the response object
-    return response
+    Returns:
+        Response: Response with HTTP 204 No Content.
+    """
+    return APIResponseBuilder(status=204).build()

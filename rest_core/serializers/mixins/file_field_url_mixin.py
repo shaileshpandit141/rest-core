@@ -5,6 +5,12 @@ from django.db import models
 logger = logging.getLogger(__name__)
 
 
+class RequestNotFoundInSerializerContext(Exception):
+    """Custom exception for missing request in serializer context."""
+
+    ...
+
+
 class FileFieldUrlMixin:
     """
     A mixin that updates FileField and ImageField URLs in serializer output
@@ -31,6 +37,12 @@ class FileFieldUrlMixin:
             dict: The updated representation.
         """
         request = self.context.get("request", None)  # type: ignore
+
+        if request is None:
+            logger.warning(
+                "Request not found in serializer context. Cannot enhance file URLs."
+            )
+            raise RequestNotFoundInSerializerContext("Request not found in serializer context.")
 
         # Detect file fields
         model_fields = {}

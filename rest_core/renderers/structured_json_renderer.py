@@ -89,25 +89,13 @@ class StructuredJSONRenderer(JSONRenderer):
                 payload.update(
                     {"status": "failed", "errors": payload["data"], "data": None}
                 )
-                return super().render(
-                    payload,
-                    accepted_media_type,
-                    renderer_context,
-                )
-
-            # Handle success response
-            if status_code == 204:
-                return super().render(
-                    None,
-                    accepted_media_type,
-                    renderer_context,
-                )
-            else:
-                return super().render(
-                    payload,
-                    accepted_media_type,
-                    renderer_context,
-                )
+            
+            # Return Final rendered
+            return super().render(
+                payload,
+                accepted_media_type,
+                renderer_context,
+            )
 
         # If the response object is None, return the data as is
         return super().render(data, accepted_media_type, renderer_context)

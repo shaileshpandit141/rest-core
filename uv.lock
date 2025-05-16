@@ -162,7 +162,7 @@ wheels = [
 
 [[package]]
 name = "rest-core"
-version = "0.1.15"
+version = "0.1.17"
 source = { editable = "." }
 dependencies = [
     { name = "django" },

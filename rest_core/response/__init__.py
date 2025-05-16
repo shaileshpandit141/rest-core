@@ -1,3 +1,3 @@
-from .response import Response, failure_response, success_response
+from .response import success_response, failure_response, destroy_response
 
-__all__ = ["Response", "success_response", "failure_response"]
+__all__ = ["success_response", "failure_response", "destroy_response"]

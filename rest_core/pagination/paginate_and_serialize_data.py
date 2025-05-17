@@ -12,7 +12,7 @@ from .page_number_pagination import PageNumberPagination
 logger = getLogger(__name__)
 
 
-def get_paginated_data(
+def paginate_and_serialize_data(
     request: HttpRequest | Request,
     queryset: QuerySet,
     serializer_class: type[Serializer | ModelSerializer],

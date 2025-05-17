@@ -1,11 +1,12 @@
 import logging
 from typing import Any
 from django.db import models
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
 
-class RequestNotFoundInSerializerContext(Exception):
+class MissingRequestContext(Exception):
     """Custom exception for missing request in serializer context."""
 
     ...
@@ -36,13 +37,14 @@ class FileFieldUrlMixin:
         Returns:
             dict: The updated representation.
         """
-        request = self.context.get("request", None)  # type: ignore
 
+        # Get the request from the serializer context
+        request = self.context.get("request", None)  # type: ignore
         if request is None:
-            logger.warning(
-                "Request not found in serializer context. Cannot enhance file URLs."
-            )
-            raise RequestNotFoundInSerializerContext("Request not found in serializer context.")
+            logger.warning("Request not found in serializer context.")
+            if settings.DEBUG:
+                raise MissingRequestContext("Request not found in serializer context.")
+            return representation
 
         # Detect file fields
         model_fields = {}

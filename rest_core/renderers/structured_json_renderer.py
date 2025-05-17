@@ -85,15 +85,27 @@ class StructuredJSONRenderer(JSONRenderer):
 
         # If status code is 204 No Content, return empty response
         if status_code == 204:
-            # Set the headers to indicate no content
-            setattr(
-                response,
-                "headers",
-                {
-                    **response.headers,
-                    "Content-Length": "0",
-                },
-            )
+            # Check if the renderer is accepted
+            accepted_renderer = getattr(response, "accepted_renderer", None)
+
+            # Check if the accepted renderer is the StructuredJSONRenderer
+            if accepted_renderer is self:
+                # Set the headers to indicate no content
+                setattr(
+                    response,
+                    "headers",
+                    {
+                        **response.headers,
+                        "Content-Length": "0",
+                    },
+                )
+
+                # Return empty response
+                return super().render(
+                    None,
+                    accepted_media_type=accepted_media_type,
+                    renderer_context=renderer_context,
+                )
 
         # Retuen Final rendered payload
         return super().render(payload, accepted_media_type, renderer_context)

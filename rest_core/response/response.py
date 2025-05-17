@@ -1,4 +1,5 @@
 from typing import Optional
+from urllib import response
 
 from rest_framework.response import Response
 
@@ -136,4 +137,11 @@ def destroy_response() -> Response:
     Returns:
         Response: Response with HTTP 204 No Content.
     """
-    return APIResponseBuilder(status=204).build()
+
+    response = APIResponseBuilder(status=204).build()
+
+    # Manually set Content-Length to 0 for 204 No Content
+    setattr(response, "Content-Length", 0)
+
+    # Return the response object
+    return response

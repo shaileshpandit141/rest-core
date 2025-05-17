@@ -5,8 +5,8 @@ from rest_framework.views import APIView
 
 from rest_core.pagination import paginate_and_serialize_data
 from rest_core.response import failure_response, success_response
-from rest_core.views.mixins import ModelChoiceFieldMixin
 from rest_core.views import ModelChoiceFieldAPIView
+from rest_core.views.mixins import ModelChoiceFieldMixin
 
 from ..models import Todo
 from ..serializers import TodoSerializer

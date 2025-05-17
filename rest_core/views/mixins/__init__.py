@@ -1,7 +1,7 @@
 from .model_choice_field_mixin import (
-    ModelAttributeNotFound,
-    ChoiceFiledAttributeNotFound,
     ChoiceFieldNotFound,
+    ChoiceFiledAttributeNotFound,
+    ModelAttributeNotFound,
     ModelChoiceFieldMixin,
 )
 from .model_object_mixin import ModelObjectMixin, QuerysetAttributeNotFound

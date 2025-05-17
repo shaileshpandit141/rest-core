@@ -5,22 +5,23 @@ from rest_framework.views import APIView
 
 from rest_core.pagination import paginate_and_serialize_data
 from rest_core.response import failure_response, success_response
-from rest_core.views.mixins import ModelChoiceFiledMixin
+from rest_core.views.mixins import ModelChoiceFieldMixin
+from rest_core.views import ModelChoiceFieldAPIView
 
 from ..models import Todo
 from ..serializers import TodoSerializer
 
 
-class TodoModelChoiceAPIView(ModelChoiceFiledMixin, APIView):
+class TodoModelChoiceAPIView(ModelChoiceFieldAPIView):
     throttle_classes = [UserRateThrottle]
-    queryset = Todo.objects.all()
+    model = Todo
     choice_fields = ["priority", "status"]
 
-    def get(self, request) -> Response:
-        return success_response(
-            message="Todo choice fields retrieved successfully",
-            data=self.get_choice_fields(),
-        )
+    # def get(self, request) -> Response:
+    #     return success_response(
+    #         message="Todo choice fields retrieved successfully",
+    #         data=self.get_choice_fields(),
+    #     )
 
 
 class TodoListAPIView(APIView):

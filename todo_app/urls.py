@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 
 from .views import (
     TagDetailAPIView,
@@ -9,7 +9,8 @@ from .views import (
 )
 
 urlpatterns = [
-    path("tags/", TagListAPIView.as_view(), name="tag-list"),
+    # path("tags/", TagListAPIView.as_view(), name="tag-list"),
+    re_path(r"^tags/?$", TagListAPIView.as_view()),
     path("tags/<int:tag_id>/", TagDetailAPIView.as_view(), name="tag-detail"),
     path("todos/", TodoListAPIView.as_view(), name="todo-list"),
     path("todos/choice-fields/", TodoModelChoiceAPIView.as_view(), name="todo-choices"),

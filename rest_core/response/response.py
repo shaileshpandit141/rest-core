@@ -137,7 +137,7 @@ def destroy_response() -> Response:
         Response: Response with HTTP 204 No Content.
     """
 
-    response = APIResponseBuilder(data=None, status=204).build()
+    response = APIResponseBuilder(data={}, status=204).build()
 
     # Manually set Content-Length to 0 for 204 No Content
     setattr(response, "Content-Length", 0)

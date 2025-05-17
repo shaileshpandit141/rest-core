@@ -1,4 +1,4 @@
-from typing import Generic, TypeVar, cast, Iterable, Tuple
+from typing import Generic, Iterable, Tuple, TypeVar, cast
 
 from django.db.models import Model, QuerySet
 
@@ -37,7 +37,6 @@ class ChoiceFieldNotFound(Exception):
 
 
 class ModelChoiceFiledMixin(Generic[ModelType]):
-
     queryset: QuerySet[ModelType] | None = None
     choice_fields: list[str] | None = None
 

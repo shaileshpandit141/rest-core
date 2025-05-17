@@ -1,9 +1,9 @@
-from .model_object_mixin import QuerysetAttributeNotFound, ModelObjectMixin
 from .choice_field_mixin import (
-    ChoiceFiledAttributeNotFound,
     ChoiceFieldNotFound,
+    ChoiceFiledAttributeNotFound,
     ModelChoiceFiledMixin,
 )
+from .model_object_mixin import ModelObjectMixin, QuerysetAttributeNotFound
 
 __all__ = [
     "QuerysetAttributeNotFound",

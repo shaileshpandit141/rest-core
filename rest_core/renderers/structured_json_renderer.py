@@ -78,10 +78,18 @@ class StructuredJSONRenderer(JSONRenderer):
             payload["message"] = response.message
 
         # If status is not 2xx, consider it a failed response
-        if not str(status_code).startswith("2"):
+        if not str(status_code).startswith("2") and status_code != 204:
             payload["status"] = "failed"
             payload["errors"] = payload["data"]
             payload["data"] = None
+
+        # If status code is 204 No Content, return empty response
+        if status_code == 204:
+            # Set the headers to indicate no content
+            setattr(response, "headers", {
+                **response.headers,
+                "Content-Length": "0",
+            })
 
         # Retuen Final rendered payload
         return super().render(payload, accepted_media_type, renderer_context)

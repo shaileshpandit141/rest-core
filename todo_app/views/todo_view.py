@@ -1,13 +1,26 @@
 from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.throttling import UserRateThrottle
 from rest_framework.views import APIView
-from rest_framework.response import Response
 
-from rest_core.pagination import get_paginated_data
+from rest_core.pagination import paginate_and_serialize_data
 from rest_core.response import failure_response, success_response
+from rest_core.views.mixins import ModelChoiceFiledMixin
 
 from ..models import Todo
 from ..serializers import TodoSerializer
+
+
+class TodoModelChoiceAPIView(ModelChoiceFiledMixin, APIView):
+    throttle_classes = [UserRateThrottle]
+    queryset = Todo.objects.all()
+    choice_fields = ["priority", "status"]
+
+    def get(self, request) -> Response:
+        return success_response(
+            message="Todo choice fields retrieved successfully",
+            data=self.get_choice_fields(),
+        )
 
 
 class TodoListAPIView(APIView):
@@ -23,7 +36,7 @@ class TodoListAPIView(APIView):
         queryset = Todo.objects.all()
 
         # Paginate and serializer featched queryset.
-        paginated_data = get_paginated_data(request, queryset, TodoSerializer)
+        paginated_data = paginate_and_serialize_data(request, queryset, TodoSerializer)
 
         # Return success respone with paginated data.
         return success_response(

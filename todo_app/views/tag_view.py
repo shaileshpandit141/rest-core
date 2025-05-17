@@ -1,10 +1,9 @@
-from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.throttling import UserRateThrottle
 from rest_framework.views import APIView
-from rest_framework.response import Response
 
-from rest_core.pagination import get_paginated_data
-from rest_core.response import failure_response, success_response
+from rest_core.pagination import paginate_and_serialize_data
+from rest_core.response import destroy_response, failure_response, success_response
 
 from ..models import Tag
 from ..serializers import TagSerializer
@@ -23,7 +22,7 @@ class TagListAPIView(APIView):
         queryset = Tag.objects.all()
 
         # Paginate and serializer featched queryset.
-        paginated_data = get_paginated_data(request, queryset, TagSerializer)
+        paginated_data = paginate_and_serialize_data(request, queryset, TagSerializer)
 
         # Return success respone with paginated data.
         return success_response(
@@ -153,8 +152,4 @@ class TagDetailAPIView(APIView):
         tag.delete()
 
         # Return success response.
-        return success_response(
-            message="Tag deleted successfully",
-            data={},
-            status=status.HTTP_204_NO_CONTENT,
-        )
+        return destroy_response()

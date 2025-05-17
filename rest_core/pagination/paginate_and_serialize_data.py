@@ -50,7 +50,11 @@ def paginate_and_serialize_data(
         logger.warning("No data returned from pagination. Possibly invalid page.")
         raise NotFound("The requested records were not found.")
 
-    serializer = serializer_class(instance=page, many=True)
+    serializer = serializer_class(
+        instance=page,
+        many=True,
+        context={"request": request},
+    )
     page_size = paginator.get_page_size(request)
 
     response_data = {

@@ -1,6 +1,7 @@
-from typing import Optional
+from typing import Optional, cast
 
 from rest_framework.response import Response
+from django.http import HttpResponse
 
 from .types import APIResponseData, APIValidationErrors
 
@@ -137,10 +138,11 @@ def destroy_response() -> Response:
         Response: Response with HTTP 204 No Content.
     """
 
-    response = APIResponseBuilder(data={}, status=204).build()
+    # Create a Django HttpResponse object with status 204 (No Content)
+    http_response = HttpResponse(status=204)
 
-    # Manually set Content-Length to 0 for 204 No Content
-    setattr(response, "Content-Length", 0)
+    # Cast the HttpResponse to Response
+    response: Response = cast(Response, http_response)
 
     # Return the response object
     return response

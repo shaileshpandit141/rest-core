@@ -24,8 +24,9 @@ class MessagesDict(TypedDict):
 
 class ActionMessageMixin:
     """
-    Sets response.message for view actions and known errors
-    (auto-merging custom and default messages).
+    Sets response.message for view actions and known errors.
+    Works across all class-based views (GenericAPIView, ViewSet, etc.)
+    by inferring the action from HTTP method and context.
     """
 
     default_messages: MessagesDict = {
@@ -61,33 +62,45 @@ class ActionMessageMixin:
             },
         }
 
+    def get_action_type(self, request) -> str | None:
+        """Determine the action based on HTTP method and view context."""
+        method = request.method.lower()
+        if method == "get":
+            if hasattr(self, "get_object") and callable(
+                getattr(self, "get_object", None)
+            ):
+                return "retrieve"
+            return "list"
+        elif method == "post":
+            return "create"
+        elif method == "put":
+            return "update"
+        elif method == "patch":
+            return "partial_update"
+        elif method == "delete":
+            return "destroy"
+        return None
+
     def finalize_response(self, request, response, *args, **kwargs) -> Response:
         response = super().finalize_response(request, response, *args, **kwargs)  # type: ignore
-        action = getattr(self, "action", None)
 
-        # Only apply if inside a known action
-        if not action:
-            return response
-
-        # Get Merge messages With default messages
+        # Determine action from attribute or fallback
+        action = getattr(self, "action", None) or self.get_action_type(request)
         messages = self.merged_messages
 
-        # 404 Not Found
         if response.status_code == 404 and getattr(response, "exception", False):
             msg = messages["errors"].get("not_found")
             if msg:
                 response.message = msg
             return response
 
-        # 400 Validation Error
         if response.status_code == 400 and getattr(response, "exception", False):
             msg = messages["errors"].get("validation_error")
             if msg:
                 response.message = msg
             return response
 
-        # Success response (200/201/etc)
-        if is_success(response.status_code):
+        if is_success(response.status_code) and action:
             msg = messages["actions"].get(action)
             if msg:
                 response.message = msg

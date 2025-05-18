@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rest-core"
-version = "0.1.33"
+version = "0.1.34"
 description = """
 A lightweight Django package to enhance your Django REST Framework (DRF)
 APIs with consistent response formatting, smart exception handling, rate-limit

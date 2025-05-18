@@ -8,6 +8,14 @@ from .views import (
     TodoModelChoiceAPIView,
 )
 
+from .views.subtask_view import SubTaskViewSet
+from rest_framework.routers import DefaultRouter
+
+# Create a router and register our viewset with it.
+router = DefaultRouter()
+
+router.register(r"subtasks", SubTaskViewSet, basename="subtask")
+
 urlpatterns = [
     # path("tags/", TagListAPIView.as_view(), name="tag-list"),
     re_path(r"^tags/?$", TagListAPIView.as_view()),
@@ -16,3 +24,6 @@ urlpatterns = [
     path("todos/choice-fields/", TodoModelChoiceAPIView.as_view(), name="todo-choices"),
     path("todos/<int:todo_id>/", TodoDetailAPIView.as_view(), name="todo-detail"),
 ]
+
+
+urlpatterns += router.urls

@@ -8,6 +8,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from rest_core.response import failure_response, success_response
+from rest_core.viewsets.mixins import ActionMessageMixin
 
 # Configure logger for this module
 logger = logging.getLogger(__name__)
@@ -19,7 +20,7 @@ class ChoiceFieldNotFound(Exception):
     pass
 
 
-class ChoiceFieldViewSetMixin:
+class ChoiceFieldViewSetMixin(ActionMessageMixin):
     """
     Mixin to expose a `choice-fields/` endpoint on a DRF ViewSet.
     Automatically gets the model from the queryset.

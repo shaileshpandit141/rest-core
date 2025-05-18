@@ -1,4 +1,5 @@
 from django.urls import path, re_path
+from rest_framework.routers import DefaultRouter
 
 from .views import (
     TagDetailAPIView,
@@ -7,9 +8,7 @@ from .views import (
     TodoListAPIView,
     TodoModelChoiceAPIView,
 )
-
 from .views.subtask_view import SubTaskViewSet
-from rest_framework.routers import DefaultRouter
 
 # Create a router and register our viewset with it.
 router = DefaultRouter()

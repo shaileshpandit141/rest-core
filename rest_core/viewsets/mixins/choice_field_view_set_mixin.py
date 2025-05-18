@@ -1,3 +1,4 @@
+import logging
 from typing import Iterable, Tuple, cast
 from django.db.models import Model
 from django.core.exceptions import FieldDoesNotExist
@@ -6,6 +7,9 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_core.response import success_response, failure_response
 
+# Configure logger for this module
+logger = logging.getLogger(__name__)
+
 
 class ChoiceFieldNotFound(Exception):
     """Raised when a specified field does not exist or has no choices."""
@@ -13,7 +17,7 @@ class ChoiceFieldNotFound(Exception):
     pass
 
 
-class ChoiceFieldViewSetMixin():
+class ChoiceFieldViewSetMixin:
     """
     Mixin to expose a `choice-fields/` endpoint on a DRF ViewSet.
     Automatically gets the model from the queryset.
@@ -26,21 +30,24 @@ class ChoiceFieldViewSetMixin():
         Retrieves the model class from the queryset.
         """
         try:
-            return self.get_queryset().model  # type: ignore[return-value]
-        except (AttributeError, AssertionError):
+            model = self.get_queryset().model  # type: ignore[return-value]
+            logger.debug(f"Inferred model from queryset: {model}")
+            return model
+        except (AttributeError, AssertionError) as e:
+            logger.exception("Failed to infer model from queryset.")
             raise RuntimeError(
                 "Could not infer model from queryset. Ensure 'queryset' is set."
-            )
+            ) from e
 
     def get_choice_fields(self) -> dict[str, dict[str, str]]:
         """
         Extracts choice fields from the model.
-
         Returns:
             A dictionary mapping field names to their available choices.
         """
         if not self.choice_fields:
-            return {}  # Empty by design, no error needed
+            logger.info("No `choice_fields` defined on the viewset.")
+            return {}
 
         model = self.get_model()
         choices_as_dict: dict[str, dict[str, str]] = {}
@@ -50,9 +57,16 @@ class ChoiceFieldViewSetMixin():
                 field = model._meta.get_field(field_name)
                 raw_choices = cast(Iterable[Tuple[str, str]], field.choices or [])
                 if not raw_choices:
+                    logger.warning(f"Field '{field_name}' has no choices.")
                     continue
                 choices_as_dict[field_name] = dict(raw_choices)
+                logger.debug(
+                    f"Loaded choices for field '{field_name}': {choices_as_dict[field_name]}"
+                )
             except FieldDoesNotExist:
+                logger.error(
+                    f"Field '{field_name}' does not exist on model '{model.__name__}'."
+                )
                 raise ChoiceFieldNotFound(
                     f"Field '{field_name}' does not exist on model '{model.__name__}'."
                 )
@@ -68,23 +82,28 @@ class ChoiceFieldViewSetMixin():
         try:
             choices = self.get_choice_fields()
 
-            # If no choice fields are found, return a No Content response message
             if not choices:
+                logger.info("No choice fields returned.")
                 return success_response(
                     message="No choice fields found.",
                     data={"detail": "No choice fields found."},
                 )
 
+            logger.info("Choice fields retrieved successfully.")
             return success_response(
                 message="Choice fields retrieved successfully.",
                 data=choices,
             )
-        except ChoiceFieldNotFound:
+
+        except ChoiceFieldNotFound as e:
+            logger.warning(f"Choice field retrieval failed: {e}")
             return failure_response(
                 message="Choice retrieval failed.",
                 errors={"detail": "Failed to retrieve choice fields."},
             )
-        except Exception:
+
+        except Exception as e:
+            logger.exception("Unexpected error during choice field retrieval.")
             return failure_response(
                 message="Something went wrong. Please try again later.",
                 errors={"detail": "An unexpected error occurred."},

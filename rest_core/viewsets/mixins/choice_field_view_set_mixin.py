@@ -1,11 +1,13 @@
 import logging
 from typing import Iterable, Tuple, cast
-from django.db.models import Model
+
 from django.core.exceptions import FieldDoesNotExist
+from django.db.models import Model
 from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework.request import Request
-from rest_core.response import success_response, failure_response
+from rest_framework.response import Response
+
+from rest_core.response import failure_response, success_response
 
 # Configure logger for this module
 logger = logging.getLogger(__name__)
@@ -103,7 +105,9 @@ class ChoiceFieldViewSetMixin:
             )
 
         except Exception as e:
-            logger.exception("Unexpected error during choice field retrieval.")
+            logger.exception(
+                f"Unexpected error during choice field retrieval. \nErrror: {e}"
+            )
             return failure_response(
                 message="Something went wrong. Please try again later.",
                 errors={"detail": "An unexpected error occurred."},

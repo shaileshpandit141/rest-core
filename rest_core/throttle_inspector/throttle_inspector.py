@@ -58,14 +58,15 @@ class ThrottleInspector:
     def get_throttle_rate(
         self, throttle_class: Type[BaseThrottle]
     ) -> Optional[Tuple[int, int]]:
-        """Retrieves and parses the throttle rate from Django settings."""
-        throttle_name = self.to_snake_case(throttle_class.__name__)
-        rate = settings.REST_FRAMEWORK.get("DEFAULT_THROTTLE_RATES", {}).get(
-            throttle_name
-        )
+        scope = getattr(throttle_class, "scope", None)
+        if not scope:
+            logger.warning(f"No scope defined in {throttle_class.__name__}. Skipping.")
+            return None
+
+        rate = settings.REST_FRAMEWORK.get("DEFAULT_THROTTLE_RATES", {}).get(scope)
 
         if not rate:
-            logger.warning(f"No rate limit found for {throttle_name}. Skipping.")
+            logger.warning(f"No rate limit found for scope '{scope}'. Skipping.")
 
         return self.parse_rate(rate)
 

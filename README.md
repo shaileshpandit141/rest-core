@@ -121,7 +121,10 @@ class ListAPIView(APIView):
           "limit": 10,
           "remaining": 8,
           "reset_time": "2025-04-23T09:01:00Z",
-          "retry_after": "60 seconds"
+          "retry_after": {
+            "time": 59,
+            "unit": "seconds"
+          }
         }
       }
     }
@@ -189,7 +192,10 @@ class ListAPIView(APIView):
           "limit": 10,
           "remaining": 8,
           "reset_time": "2025-04-23T09:01:00Z",
-          "retry_after": "60 seconds"
+          "retry_after": {
+            "time": 59,
+            "unit": "seconds"
+          }
         }
       }
     }

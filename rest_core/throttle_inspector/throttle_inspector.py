@@ -90,7 +90,10 @@ class ThrottleInspector:
             "limit": limit,
             "remaining": remaining,
             "reset_time": reset_time.isoformat(),
-            "retry_after": f"{retry_after} seconds",
+            "retry_after": {
+                "time": retry_after,
+                "unit": "seconds",
+            },
         }
 
     def get_details(self) -> Dict[str, Any]:

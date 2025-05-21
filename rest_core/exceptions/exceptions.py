@@ -50,15 +50,12 @@ def base_exception_handler(exc, context) -> Any | Response | None:
         # Get the view (if available)
         view = context.get("view", None)
 
-        is_authenticated = request.user.is_authenticated
-        if is_authenticated:
-            # Use view-defined throttle classes or fallback to AnonRateThrottle
-            throttle_classes = getattr(view, "throttle_classes", None) or [
-                AnonRateThrottle
-            ]
-        else:
+        # Check if the request is allowed by the throttle classes
+        throttle_classes = getattr(view, "throttle_classes", None) or []
+
+        # If no throttle classes are defined, return the original response
+        if not throttle_classes:
             throttle_classes = [AnonRateThrottle]
-            setattr(view, "throttle_classes", throttle_classes)
 
         # Iterate over the list of throttles class
         for throttle_class in throttle_classes:
@@ -83,16 +80,21 @@ def base_exception_handler(exc, context) -> Any | Response | None:
                         if history:
                             retry_after = int(throttle.duration - (now - history[0]))
 
-                        return Response(
-                            {
-                                "message": "You have exceeded the rate limit. Please wait before making more requests.",
-                                "data": {
-                                    "detail": "You have exceeded the rate limit. Please wait before making more requests.",
-                                    "retry_after": retry_after,
+                        response = Response({
+                                "detail": "Too many requests. Please try again later.",
+                                "retry_after": {
+                                    "time": retry_after,
+                                    "unit": "seconds",
                                 },
                             },
-                            status=status.HTTP_429_TOO_MANY_REQUESTS,
+                            status=status.HTTP_429_TOO_MANY_REQUESTS
                         )
+
+                        # Set message in response
+                        setattr(response, "message", "You have exceeded the rate limit.")
+
+                        # Return the response with 429 status code
+                        return response
 
                 # Otherwise, add the current request to history and update cache
                 history.append(now)

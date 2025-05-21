@@ -106,6 +106,14 @@ class StructuredJSONRenderer(JSONRenderer):
                     accepted_media_type=accepted_media_type,
                     renderer_context=renderer_context,
                 )
+            else:
+                # If the accepted renderer is not the StructuredJSONRenderer,
+                # return the original response
+                return super().render(
+                    data,
+                    accepted_media_type=accepted_media_type,
+                    renderer_context=renderer_context,
+                )
 
         # Retuen Final rendered payload
         return super().render(payload, accepted_media_type, renderer_context)

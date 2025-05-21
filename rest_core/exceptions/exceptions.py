@@ -80,18 +80,21 @@ def base_exception_handler(exc, context) -> Any | Response | None:
                         if history:
                             retry_after = int(throttle.duration - (now - history[0]))
 
-                        response = Response({
+                        response = Response(
+                            {
                                 "detail": "Too many requests. Please try again later.",
                                 "retry_after": {
                                     "time": retry_after,
                                     "unit": "seconds",
                                 },
                             },
-                            status=status.HTTP_429_TOO_MANY_REQUESTS
+                            status=status.HTTP_429_TOO_MANY_REQUESTS,
                         )
 
                         # Set message in response
-                        setattr(response, "message", "You have exceeded the rate limit.")
+                        setattr(
+                            response, "message", "You have exceeded the rate limit."
+                        )
 
                         # Return the response with 429 status code
                         return response

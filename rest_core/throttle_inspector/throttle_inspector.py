@@ -115,14 +115,18 @@ class ThrottleInspector:
                 continue  # Skip if rate is not configured
 
             limit, duration = parsed_rate
-            throttle_name = self.to_snake_case(throttle_class.__name__)
+            scope = getattr(
+                throttle_class,
+                "scope",
+                self.to_snake_case(throttle_class.__name__),
+            )
             throttle_usage = self.get_throttle_usage(throttle, limit, duration)
 
-            details["throttles"][throttle_name] = throttle_usage
+            details["throttles"][scope] = throttle_usage
 
             if throttle_usage["remaining"] == 0 and not details["throttled_by"]:
-                details["throttled_by"] = throttle_name
-                logger.info(f"Request throttled by {throttle_name}")
+                details["throttled_by"] = scope
+                logger.info(f"Request throttled by {scope}")
 
         return details
 

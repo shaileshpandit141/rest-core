@@ -27,7 +27,10 @@ class StructuredJSONRenderer(JSONRenderer):
                         "limit": int,
                         "remaining": int,
                         "reset_time": str,
-                        "retry_after": str
+                        "retry_after": {
+                            "time": int,
+                            "unit": str,
+                        },
                     }
                 }
             }

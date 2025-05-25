@@ -14,6 +14,12 @@ from rest_core.viewsets.mixins import ActionMessageMixin
 logger = logging.getLogger(__name__)
 
 
+class MissingChoiceFieldsConfig(Exception):
+    """Raised when no choice fields are configured on the viewset."""
+
+    pass
+
+
 class ChoiceFieldNotFound(Exception):
     """Raised when a specified field does not exist or has no choices."""
 
@@ -50,7 +56,9 @@ class ChoiceFieldViewSetMixin(ActionMessageMixin):
         """
         if not self.choice_fields:
             logger.info("No `choice_fields` defined on the viewset.")
-            return {}
+            raise MissingChoiceFieldsConfig(
+                "`choice_fields` must be defined in your ViewSet when using ChoiceFieldViewSetMixin."
+            )
 
         model = self.get_model()
         choices_as_dict: dict[str, dict[str, str]] = {}

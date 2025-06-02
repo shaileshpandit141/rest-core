@@ -8,7 +8,6 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from rest_core.response import failure_response, success_response
-from rest_core.viewsets.mixins import ActionMessageMixin
 
 # Configure logger for this module
 logger = logging.getLogger(__name__)
@@ -26,7 +25,7 @@ class ChoiceFieldNotFound(Exception):
     pass
 
 
-class ChoiceFieldViewSetMixin(ActionMessageMixin):
+class ModelChoiceFieldActionMixin:
     """
     Mixin to expose a `choice-fields/` endpoint on a DRF ViewSet.
     Automatically gets the model from the queryset.
@@ -67,6 +66,16 @@ class ChoiceFieldViewSetMixin(ActionMessageMixin):
             try:
                 field = model._meta.get_field(field_name)
                 raw_choices = cast(Iterable[Tuple[str, str]], field.choices or [])
+
+                if not all(
+                    isinstance(choice, (list, tuple)) and len(choice) == 2
+                    for choice in raw_choices
+                ):
+                    logger.warning(
+                        f"Invalid choice format on field '{field_name}'. Expected 2-tuples."
+                    )
+                    continue  # Skip invalid choices
+
                 if not raw_choices:
                     logger.warning(f"Field '{field_name}' has no choices.")
                     continue

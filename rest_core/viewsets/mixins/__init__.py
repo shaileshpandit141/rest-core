@@ -1,13 +1,13 @@
 from .action_message_mixin import ActionMessageMixin
-from .choice_field_view_set_mixin import (
+from .model_choice_field_action_mixin import (
     MissingChoiceFieldsConfig,
     ChoiceFieldNotFound,
-    ChoiceFieldViewSetMixin,
+    ModelChoiceFieldActionMixin,
 )
 
 __all__ = [
     "ActionMessageMixin",
     "MissingChoiceFieldsConfig",
     "ChoiceFieldNotFound",
-    "ChoiceFieldViewSetMixin",
+    "ModelChoiceFieldActionMixin",
 ]

@@ -61,19 +61,33 @@ class ModelChoiceFieldMixin:
                 "The choice_fields attribute must be set in the class."
             )
 
-        # Define a dictionary to hold the choices
         choices_as_dict: dict[str, dict[str, str]] = {}
 
-        # Iterate over the choice fields and retrieve their choices
         for field in self.choice_fields:
             try:
                 field_obj = self.model._meta.get_field(field)
                 raw_choices = cast(Iterable[Tuple[str, str]], field_obj.choices or [])
-                choices_as_dict[field] = dict(raw_choices)
-            except Exception:
-                raise ChoiceFieldNotFound(
-                    f"The field '{field}' is not found or has no choices in the model '{self.model.__name__}'."
-                )
 
-        # Return the choices as a dictionary
+                # Validate choice structure
+                if not all(
+                    isinstance(choice, (list, tuple)) and len(choice) == 2
+                    for choice in raw_choices
+                ):
+                    raise ChoiceFieldNotFound(
+                        f"The field '{field}' in model '{self.model.__name__}' has invalid choice format. "
+                        "Expected an iterable of 2-tuples (value, label)."
+                    )
+
+                if not raw_choices:
+                    raise ChoiceFieldNotFound(
+                        f"The field '{field}' in model '{self.model.__name__}' has no choices defined."
+                    )
+
+                choices_as_dict[field] = dict(raw_choices)
+
+            except Exception as error:
+                raise ChoiceFieldNotFound(
+                    f"The field '{field}' is not found or has invalid choices in the model '{self.model.__name__}'."
+                ) from error
+
         return choices_as_dict

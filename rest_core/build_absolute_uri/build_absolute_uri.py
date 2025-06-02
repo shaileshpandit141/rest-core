@@ -1,7 +1,8 @@
-from typing import Optional, Sequence, Any
+from typing import Any, Optional, Sequence
 from urllib.parse import urlencode
-from django.urls import reverse
+
 from django.http import HttpRequest
+from django.urls import reverse
 from rest_framework.request import Request
 
 

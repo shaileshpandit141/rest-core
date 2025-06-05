@@ -1,3 +1,5 @@
+# type: ignore[attr-defined]
+
 import hashlib
 import json
 from functools import wraps

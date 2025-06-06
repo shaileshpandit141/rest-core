@@ -103,11 +103,13 @@ class CacheMixin:
                     if key:
                         cache.delete(key)
 
-        cache.delete_pattern(f"{self.basename}_list_*")
+        # Prevent exception if not used redis.
+        if hasattr(cache, "delete_pattern"):
+            cache.delete_pattern(f"{self.basename}_list_*")
 
-        if custom_actions:
-            for action in custom_actions:
-                cache.delete_pattern(f"{self.basename}_{action}_list_*")
+            if custom_actions:
+                for action in custom_actions:
+                    cache.delete_pattern(f"{self.basename}_{action}_list_*")
 
     def cache_action(
         self, detail: bool = False, action_name: Optional[str] = None

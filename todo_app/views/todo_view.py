@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.throttling import UserRateThrottle
 from rest_framework.views import APIView
+from django.contrib.auth import get_user_model
 
 from rest_core.pagination import paginate_and_serialize_data
 from rest_core.response import failure_response, success_response
@@ -53,9 +54,13 @@ class TodoListAPIView(APIView):
             data=request.data, many=isinstance(request.data, list)
         )
 
+        model = get_user_model()
+
+        user = model.objects.filter(id=1).first()
+
         # Check serializer is valid or not
         if serializer.is_valid():
-            serializer.save(user=request.user)
+            serializer.save(user=user)
             return success_response(
                 message="Todo created successfully",
                 data=serializer.data,

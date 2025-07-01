@@ -15,6 +15,12 @@ class Todo(models.Model):
         verbose_name = "todo"
         verbose_name_plural = "todos"
         ordering = ["-id"]
+        constraints: list[models.UniqueConstraint] = [
+            models.UniqueConstraint(
+                fields=["title", "description"],
+                name="unique_title_description",
+            )
+        ]
 
     objects = models.Manager()
 
